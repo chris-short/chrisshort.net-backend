@@ -1,0 +1,20 @@
+---
+- name: Ensure SMTP packages are up to date
+  yum: name={{ item }} state=latest
+  with_items:
+    - postfix
+    - mailx
+    - cyrus-sasl-plain
+  tags:
+    - smtp_pkg
+
+- name: Instantiate SMTP configuration
+  template: src={{ item.src }} dest={{ item.dest }} owner=root group=root mode={{ item.mode }}
+  with_items:
+   - { src: 'main.cf.j2', dest: '/etc/postfix/main.cf', mode: '0640' }
+   - { src: 'forward.j2', dest: '/root/.forward', mode: '0640' }
+  notify:
+   - restart postfix
+   - test mail
+  tags:
+    - smtp_conf

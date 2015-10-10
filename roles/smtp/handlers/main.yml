@@ -1,0 +1,10 @@
+---
+- name: postmap sasl_passwd
+  shell: postmap /etc/postfix/sasl_passwd
+
+- name: restart postfix
+  service: name=postfix state=restarted
+
+- name: test mail
+  shell: mail -s "Ansible {{ inventory_hostname }} SMTP Mail Test" chris@chrisshort.net < /dev/null
+

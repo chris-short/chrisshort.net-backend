@@ -1,0 +1,5 @@
+---
+- name: Setup fail2ban
+  hosts: all
+  roles:
+    - fail2ban

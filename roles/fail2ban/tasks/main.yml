@@ -1,0 +1,16 @@
+---
+- name: Ensure packages are up to date
+  yum: name={{ item }} state=latest
+  with_items:
+    - fail2ban
+  tags:
+    - fail2ban_pkg
+
+- name: Copy fail2ban jail.local configuration
+  template: src={{ item.src }} dest={{ item.dest }} owner=root group=root mode=0644
+  with_items:
+    - { src: 'jail.local.j2', dest: '/etc/fail2ban/jail.local' }
+  notify:
+    - restart fail2ban
+  tags:
+    - fail2ban_conf

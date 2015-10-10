@@ -1,0 +1,5 @@
+---
+- name: Setup SMTP Relay
+  hosts: all
+  roles:
+    - smtp
