@@ -1,0 +1,8 @@
+---
+- name: Get Percona Server Up and Running
+  hosts: DB
+  gather_facts: true
+  vars:
+    innodb_buffer_pool_size: "{{ (ansible_memtotal_mb * innodb_buffer_pool_ratio)|int }}M"
+  roles:
+    - percona

@@ -1,0 +1,33 @@
+# {{ ansible_managed }}
+# This logrotate file was derived from an e-mail from Percona after its engagement with Systems Engineering
+# The log file name and location can be set in
+# /etc/my.cnf by setting the "log-error" option
+# in either [mysqld] or [mysqld_safe] section as
+# follows:
+#
+# [mysqld]
+# log-error=/var/lib/mysql/mysqld.log
+#
+# In case the root user has a password, then you
+# have to create a /root/.my.cnf configuration file
+# with the following content:
+#
+# [mysqladmin]
+# password = <secret>
+# user= root
+#
+# where "<secret>" is the password.
+#
+# ATTENTION: The /root/.my.cnf file should be readable
+# _ONLY_ by root !
+/var/lib/mysql/mysql-error.log /var/lib/mysql/mysql-slow.log /var/lib/mysql/mysql-general.log {
+	daily
+	rotate 7
+	missingok
+	create 640 mysql mysql
+	dateext
+	sharedscripts
+	postrotate
+        env HOME=/root/ /usr/bin/mysql -e 'select @@global.long_query_time into @lqt_save; set global long_query_time=2000; select sleep(2); FLUSH LOGS; select sleep(2); set global long_query_time=@lqt_save;'
+	endscript
+}

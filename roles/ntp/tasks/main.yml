@@ -1,0 +1,16 @@
+---
+- name: Installing NTP Packages on All Systems
+  yum: name={{ item }} state=latest
+  with_items:
+    - ntp
+    - ntpdate
+  notify:
+    - restart ntpd
+
+- name: Copy NTP configuration file
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf owner=root group=root mode=0644
+  notify:
+    - restart ntpd
+
+- name: Ensure NTP is running and enabled at system start.
+  service: name=ntpd state=started enabled=yes

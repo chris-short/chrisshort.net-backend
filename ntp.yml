@@ -1,0 +1,5 @@
+---
+- name: Setup NTP Server
+  hosts: all
+  roles:
+    - ntp

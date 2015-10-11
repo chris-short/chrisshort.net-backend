@@ -1,1 +1,3 @@
-wile.chrisshort.net
+[NYC]
+wile	ansible_ssh_host=wile.chrisshort.net
+

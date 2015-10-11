@@ -1,0 +1,12 @@
+---
+- name: mysql upgrade
+  shell: /usr/bin/mysql_upgrade --force
+
+- name: mysql restart
+  service: name=mysql state=restarted
+
+- name: sysctl
+  shell: /sbin/sysctl -e -q -p
+
+- name: scheduler
+  shell: /usr/bin/test -f /sys/block/{{ mysql_disk }}/queue/scheduler && /bin/echo deadline > /sys/block/{{ mysql_disk }}/queue/scheduler
