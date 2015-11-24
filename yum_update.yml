@@ -1,0 +1,6 @@
+---
+- hosts: all
+  sudo: true
+  tasks:
+    - name: Upgrade all installed packages
+      yum: name=* state=latest 

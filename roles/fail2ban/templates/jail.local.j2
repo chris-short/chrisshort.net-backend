@@ -62,10 +62,10 @@ bantime  = 14400
 
 # A host is banned if it has generated "maxretry" during the last "findtime"
 # seconds.
-findtime  = 600
+findtime  = 3600
 
 # "maxretry" is the number of failures before a host get banned.
-maxretry = 4
+maxretry = 5
 
 # "backend" specifies the backend used to get files modification.
 # Available options are "pyinotify", "gamin", "polling", "systemd" and "auto".
@@ -128,7 +128,7 @@ filter = %(__name__)s
 
 # Destination email address used solely for the interpolations in
 # jail.{conf,local,d/*} configuration files.
-destemail = root@localhost
+destemail = chris@chrisshort.net 
 
 # Sender email address used solely for some actions
 sender = root@localhost
@@ -243,7 +243,7 @@ filter   = sshd
 action   = iptables[name=SSH, port=ssh, protocol=tcp]
            sendmail-whois[name=SSH, dest=root, sender=fail2ban@example.com]
 logpath  = /var/log/secure
-maxretry = 5
+maxretry = 3
 
 #
 # HTTP servers

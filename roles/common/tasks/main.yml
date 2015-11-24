@@ -13,6 +13,7 @@
     - iptraf
     - man
     - rsync
+    - strace
     - sysstat
     - unzip
     - vim
