@@ -1,0 +1,19 @@
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  become: no
+
+  tasks:
+    - name: Provision an EC2 instance
+      ec2:
+        aws_access_key: "{{ ec2_access_key }}"
+        aws_secret_key: "{{ ec2_secret_key }}"
+        key_name: "ec2_chrisshort.pem"
+        region: "{{ ec2_region }}"
+        group: "{{ ec2_sg }}"
+        image: "{{ ami_id }}"
+        instance_type: t2.micro
+        wait: yes
+        count: 1
+        vpc_subnet_id: vpc-55ec3131
+        assign_public_ip: yes
