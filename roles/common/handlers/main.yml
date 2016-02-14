@@ -1,3 +1,6 @@
 ---
 - name: restart sshd
   service: name=sshd state=restarted
+
+- name: start newrelic-sysmond
+  service: name=newrelic-sysmond state=restarted enabled=yes

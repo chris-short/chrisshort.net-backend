@@ -1,0 +1,13 @@
+---
+- name: Setup New Relic Repo
+  yum: name=https://download.newrelic.com/pub/newrelic/el5/i386/newrelic-repo-5-3.noarch.rpm state=present
+
+- name: Install New Relic Packages
+  yum: name={{ item }} state=latest
+  with_items:
+    - newrelic-sysmond
+  notify: restart newrelic-sysmond
+
+- name: Configure New Relic Server Monitor
+  template: src=nrsysmond.cfg.j2 dest=/etc/newrelic/nrsysmond.cfg
+  notify: restart newrelic-sysmond

@@ -2,14 +2,18 @@
 - name: Setup yum repos
   yum: name={{ item }} state=present
   with_items:
-    - https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-    - https://centos6.iuscommunity.org/ius-release.rpm
+    - https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
+    - https://centos{{ ansible_distribution_major_version }}.iuscommunity.org/ius-release.rpm
+  when: ansible_distribution == "CentOS"
+
+- name: Add EPEL Repo Key
+  rpm_key: state=present key="/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+  tags: key
 
 - name: Install common packages
   yum: name={{ item }} state=latest
   with_items:
     - curl
-    - golang
     - iptraf
     - man
     - rsync
@@ -18,20 +22,3 @@
     - unzip
     - vim
     - wget
-
-- name: Add cshort user
-  user: name=cshort uid=500 groups=wheel append=yes password={{ cshort_password }}
-
-- name: Add SSH keys to cshort user
-  authorized_key: user=cshort key="{{ item }}" state=present exclusive=yes
-  with_file:
-    - work_id_rsa.pub
-    - home_id_rsa.pub
-
-- name: Instantiate /etc/sudoers, /etc/ssh/sshd_config
-  template:  src={{ item.src }} dest={{ item.dest }} owner=root group=root mode={{ item.mode }}
-  with_items:
-   - { src: 'sudoers.j2', dest: '/etc/sudoers', mode: '0440' }
-   - { src: 'sshd_config.j2', dest: '/etc/ssh/sshd_config', mode: '0600' }
-  notify:
-   - restart sshd
