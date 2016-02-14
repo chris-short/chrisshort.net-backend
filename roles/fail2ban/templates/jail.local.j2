@@ -1,5 +1,3 @@
-# {{ ansible_managed }}
-
 #
 # WARNING: heavily refactored in 0.9.0 release.  Please review and
 #          customize settings for your setup.
@@ -128,7 +126,7 @@ filter = %(__name__)s
 
 # Destination email address used solely for the interpolations in
 # jail.{conf,local,d/*} configuration files.
-destemail = chris@chrisshort.net 
+destemail = chris@chrisshort.net
 
 # Sender email address used solely for some actions
 sender = root@localhost
@@ -176,6 +174,10 @@ action_mwl = %(banaction)s[name=%(__name__)s, bantime="%(bantime)s", port="%(por
 action_xarf = %(banaction)s[name=%(__name__)s, bantime="%(bantime)s", port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
              xarf-login-attack[service=%(__name__)s, sender="%(sender)s", logpath=%(logpath)s, port="%(port)s"]
 
+# ban IP on CloudFlare & send an e-mail with whois report and relevant log lines
+# to the destemail.
+action_cf_mwl = cloudflare[cfuser="%(cfemail)s", cftoken="%(cfapikey)s"]
+                %(mta)s-whois-lines[name=%(__name__)s, dest="%(destemail)s", logpath=%(logpath)s, chain="%(chain)s"]
 
 # Report block via blocklist.de fail2ban reporting service API
 #
@@ -236,14 +238,6 @@ port     = ssh
 logpath  = %(auditd_log)s
 maxretry = 5
 
-[ssh-iptables]
-
-enabled  = true
-filter   = sshd
-action   = iptables[name=SSH, port=ssh, protocol=tcp]
-           sendmail-whois[name=SSH, dest=root, sender=fail2ban@example.com]
-logpath  = /var/log/secure
-maxretry = 3
 
 #
 # HTTP servers
@@ -354,7 +348,7 @@ logpath = %(lighttpd_error_log)s
 [roundcube-auth]
 
 port     = http,https
-logpath  = /var/log/roundcube/userlogins
+logpath  = logpath = %(roundcube_errors_log)s
 
 
 [openwebmail]
@@ -418,6 +412,12 @@ port    = 10000
 logpath = %(syslog_authpriv)s
 
 
+[froxlor-auth]
+
+port    = http,https
+logpath  = %(syslog_authpriv)s
+
+
 #
 # HTTP Proxy servers
 #
@@ -433,6 +433,7 @@ logpath = /var/log/squid/access.log
 
 port    = 3128
 logpath = /var/log/3proxy.log
+
 
 #
 # FTP servers
@@ -697,7 +698,7 @@ maxretry = 5
 #    to maintain entries for failed logins for sufficient amount of time
 [recidive]
 
-logpath  = /var/log/messages
+logpath  = /var/log/fail2ban.log
 banaction = iptables-allports
 bantime  = 604800  ; 1 week
 findtime = 86400   ; 1 day
@@ -766,3 +767,16 @@ port = 2222
 enabled  = false
 logpath  = /var/lib/portsentry/portsentry.history
 maxretry = 1
+
+[pass2allow-ftp]
+# this pass2allow example allows FTP traffic after successful HTTP authentication
+port         = ftp,ftp-data,ftps,ftps-data
+# knocking_url variable must be overridden to some secret value in filter.d/apache-pass.local
+filter       = apache-pass
+# access log of the website with HTTP auth
+logpath      = %(apache_access_log)s
+blocktype    = RETURN
+returntype   = DROP
+bantime      = 3600
+maxretry     = 1
+findtime     = 1
