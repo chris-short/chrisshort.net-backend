@@ -12,6 +12,9 @@
 
 - name: Enable fail2ban and firewalld at system boot
   service: name={{ item }} status=started enabled=yes
+  with_items:
+    - fail2ban
+    - firewalld
   tags:
     - fail2ban_svc
 
