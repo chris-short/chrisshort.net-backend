@@ -37,3 +37,6 @@
   gather_facts: True
   roles:
     - common
+    - newrelic
+    - ntp
+    - fail2ban

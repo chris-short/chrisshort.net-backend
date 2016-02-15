@@ -3,13 +3,17 @@
   yum: name={{ item }} state=latest
   with_items:
     - fail2ban
+    - fail2ban-systemd
+    - selinux-policy*
   tags:
     - fail2ban_pkg
 
 - name: Copy fail2ban jail.local configuration
   template: src={{ item.src }} dest={{ item.dest }} owner=root group=root mode=0644
   with_items:
-    - { src: 'jail.local.j2', dest: '/etc/fail2ban/jail.local' }
+#    - { src: 'jail.local.j2', dest: '/etc/fail2ban/jail.local' }
+#    - { src: 'firewallcmd-ipset.local.j2', dest: '/etc/fail2ban/action.d/firewallcmd-ipset.local' }
+    - { src: 'sshd.local.j2', dest: '/etc/fail2ban/jail.d/sshd.local' }
   notify:
     - restart fail2ban
   tags:
