@@ -39,4 +39,6 @@
     - common
     - newrelic
     - ntp
+    - smtp
     - fail2ban
+    - ghost

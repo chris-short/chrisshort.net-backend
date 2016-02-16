@@ -11,7 +11,7 @@
   tags: key
 
 - name: Install common packages
-  yum: name={{ item }} state=latest
+  yum: name={{ item }} state=latest update_cache=yes
   with_items:
     - curl
     - iptraf
