@@ -22,3 +22,9 @@
     - unzip
     - vim
     - wget
+
+- name: Install EL7 packages
+  yum: name={{ item }} state=latest
+  with_items:
+    - net-tools
+  when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat" and ansible_distribution_major_version >= 7
