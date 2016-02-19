@@ -1,0 +1,66 @@
+---
+# nodejs comes from EPEL
+# http://support.ghost.org/supported-node-versions/
+# https://github.com/nodejs/LTS
+# 
+- name: Install Node.js and unzip
+  yum: name={{ item }} state=latest disable_gpg_check=yes update_cache=yes
+  with_items:
+    - nodejs
+    - npm
+    - unzip
+
+# http://support.ghost.org/installing-ghost-linux/
+# https://blog.sahajsoft.com/ansible-play-to-install-ghost-blog-engine-on-ubuntu-server/
+- name: Add ghost daemon user
+  user: user=ghost state=present system=yes shell=/bin/false createhome=no
+
+- name: Make Ghost Directory
+  file: path=/var/www/ghost state=directory mode=0755 owner=ghost group=ghost
+
+- name: Explode Latest Ghost to /var/www/ghost
+  unarchive:
+    src=https://ghost.org/zip/ghost-latest.zip
+    dest=/var/www/ghost
+    owner=ghost
+    group=ghost
+    creates=/var/www/ghost/index.js
+    copy=no
+
+- name: Instantiate config.js
+  template: src=ghost_config.js.j2 dest=/var/www/ghost/config.js owner=ghost group=ghost mode=0664
+
+- name: Install Ghost Orca Theme
+  unarchive:
+    src=ghost_orca_theme.tgz
+    dest=/var/www/ghost/content/themes
+    owner=ghost
+    group=ghost
+    creates=/var/www/ghost/content/themes/orca
+
+- name: Bring over database
+  copy: src=ghost.db dest=/var/www/ghost/content/data/ghost.db owner=ghost group=ghost mode=0644
+
+- name: npm install Ghost
+  shell: "cd /var/www/ghost && npm install --production"
+  register: ghost_install
+  failed_when: ghost_install.rc != 0
+  changed_when: false
+#  become: yes
+#  become_user: ghost
+
+#- name: NPM Install (Latest)
+#  npm: path=/var/www/ghost state=latest
+
+# http://support.ghost.org/deploying-ghost/
+- name: Install Supervisor
+  yum: name=supervisor state=latest
+
+- name: Instantiate ghost supervisord config
+  template: src=ghost_supervisor.ini.j2 dest=/etc/supervisord.d/ghost.ini
+
+- name: Start supervisord service
+  service: name=supervisord state=started enabled=yes
+
+- name: Start ghost
+  supervisorctl: name=ghost state=started
