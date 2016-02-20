@@ -1,0 +1,73 @@
+---
+- name: Install nginx repo
+  yum: name={{ nginx_repo }} state=present
+
+- name: "Install Nginx and Let's Encrypt Dependencies"
+  yum: name={{ item }} state=latest
+  with_items:
+    - bc
+    - git
+    - nginx
+    - openssl
+
+- name: Create webroot and h5bp directory
+  file: path={{ item }} state=directory
+  with_items:
+    - /var/www/.well-known
+    - /etc/nginx/conf.d/h5bp/directive-only
+
+- name: Get h5bp nginx configs
+  get_url:
+    url=https://raw.githubusercontent.com/h5bp/server-configs-nginx/master/h5bp/directive-only/{{ item }}
+    dest=/etc/nginx/conf.d/h5bp/directive-only/{{ item }}
+  with_items:
+    - ssl.conf
+    - ssl-stapling.conf
+    - spdy.conf
+
+- name: Deploy chrisshort.net.conf
+  template: src=chrisshort.net.conf.j2 dest=/etc/nginx/conf.d/chrisshort.net.conf
+
+- name: "Seed the Let's Encrypt directory"
+  unarchive:
+    copy=yes
+    creates=/etc/letsencrypt/live/chrisshort.net/cert.pem
+    dest=/etc/
+    group=root
+    owner=root
+    src=letsencrypt.tgz
+
+- name: "Clone Let's Encrypt git repo"
+  git:
+    repo=https://github.com/letsencrypt/letsencrypt
+    dest=/opt/letsencrypt
+    version=master
+
+- name: Deploy le-renew-webroot.ini
+  template: src=le-renew-webroot.ini.j2 dest=/usr/local/etc/le-renew-webroot.ini
+
+- name: Get le-renew-webroot script
+  get_url:
+    url=https://gist.githubusercontent.com/thisismitch/e1b603165523df66d5cc/raw/fbffbf358e96110d5566f13677d9bd5f4f65794c/le-renew-webroot
+    dest=/usr/local/sbin/le-renew-webroot
+    
+- name: Make le-renew-webroot executable
+  file: path=/usr/local/sbin/le-renew-webroot mode=0700
+
+- name: "Run Let's Encrypt"
+  shell: /usr/local/sbin/le-renew-webroot >> /var/log/le-renewal.log
+  args:
+    chdir: /usr/local/sbin
+    creates: /etc/letsencrypt/live/chrisshort.net/fullchain.pem
+
+- name: "Setup Let's Encrypt cronjob"
+  cron: 
+    name="Let's Encrypt Renewal"
+    job="/usr/local/sbin/le-renew-webroot >> /var/log/le-renewal.log"
+    weekday=0
+    hour=5
+    minute=15
+    state=present
+
+- name: Enable and start nginx
+  service: name=nginx state=started enabled=yes
