@@ -1,4 +1,5 @@
 # {{ ansible_managed }}
+
 # References:
 # Main Structure:
 # https://www.nginx.com/blog/5-performance-tips-for-node-js-applications/
@@ -7,6 +8,9 @@
 # https://mozilla.github.io/server-side-tls/ssl-config-generator/
 # Cipher Suites:
 # https://weakdh.org/sysadmin.html
+# gzip:
+# http://www.function.fr/tuning-ghost-performance-with-nginx/
+
 server {
    server_name chrisshort.net;
    listen 443 ssl spdy;
@@ -28,6 +32,10 @@ server {
    resolver 8.8.8.8 8.8.4.4 valid=300s;
    add_header Strict-Transport-Security "max-age=15768000; includeSubdomains; preload";
    add_header X-Cache $upstream_cache_status;
+   gzip_proxied any;
+   gzip_vary on;
+   gzip_types text/plain text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript application/json application/javascript;
+   gzip_static on;
    location / {
         proxy_cache STATIC;
         proxy_cache_valid 200 30m;
@@ -89,4 +97,6 @@ server {
     rewrite ^/day/(.*)$ http://chrisshort.tumblr.com/day/$1 permanent;
     rewrite ^/random/(.*)$ http://chrisshort.tumblr.com/random/$1 permanent;
     rewrite ^/ask/(.*)$ http://chrisshort.tumblr.com/ask/$1 permanent;
+    # 404 Fixes
+    rewrite ^/index.html / permanent;
 }
