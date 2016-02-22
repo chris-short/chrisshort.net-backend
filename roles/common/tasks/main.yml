@@ -15,6 +15,7 @@
   with_items:
     - curl
     - iptraf
+    - libselinux-python
     - man
     - rsync
     - strace
@@ -28,3 +29,6 @@
   with_items:
     - net-tools
   when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat" and ansible_distribution_major_version >= 7
+
+- name: Disable SELinux
+  selinux: state=disabled

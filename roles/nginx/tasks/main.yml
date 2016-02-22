@@ -1,4 +1,7 @@
 ---
+- name: Disable SELinux
+  selinux: state=disabled
+
 - name: Install nginx repo
   yum: name={{ nginx_repo }} state=present
 
@@ -10,38 +13,53 @@
     - nginx
     - openssl
 
-- name: Create webroot and h5bp directory
-  file: path={{ item }} state=directory
+- name: Deploy dhparam.pem
+  shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+  args:
+    chdir: /etc/ssl/certs
+    creates: /etc/ssl/certs/dhparam.pem
+    
+#  copy: src=dhparam.pem dest=/etc/ssl/certs/dhparam.pem owner=root group=root mode=0644
+
+- name: Delete /etc/nginx/conf.d
+  file: path=/etc/nginx/conf.d state=absent
+
+- name: Create .well-known directory
+  file: path=/var/www/.well-known state=directory owner=root group=root recurse=yes
+
+- name: Create /etc/nginx/ directories
+  file: path=/etc/nginx/{{ item }} state=directory
   with_items:
-    - /var/www/.well-known
-    - /etc/nginx/conf.d/h5bp/directive-only
+    - conf.d
+    - includes
 
-- name: Get h5bp nginx configs
-  get_url:
-    url=https://raw.githubusercontent.com/h5bp/server-configs-nginx/master/h5bp/directive-only/{{ item }}
-    dest=/etc/nginx/conf.d/h5bp/directive-only/{{ item }}
+- name: Deploy well-known.conf
+  template: src=well-known.conf.j2 dest=/etc/nginx/conf.d/well-known.conf
+  notify: restart nginx
+  tags:
+    - nginx_configs
+    - well_known
+
+- name: Use firewalld to open ports 80/443
+  shell: firewall-cmd --permanent --add-service {{ item }}
   with_items:
-    - ssl.conf
-    - ssl-stapling.conf
-    - spdy.conf
+    - http
+    - https
+  changed_when: False
 
-- name: Deploy chrisshort.net.conf
-  template: src=chrisshort.net.conf.j2 dest=/etc/nginx/conf.d/chrisshort.net.conf
+- name: Enable and start nginx
+  service: name=nginx state=restarted enabled=yes
 
-- name: "Seed the Let's Encrypt directory"
-  unarchive:
-    copy=yes
-    creates=/etc/letsencrypt/live/chrisshort.net/cert.pem
-    dest=/etc/
-    group=root
-    owner=root
-    src=letsencrypt.tgz
+# https://www.cloudflare.com/docs/client-api.html (rec_load_all to find all records, rec_edit to change them)
+- name: Update chrisshort.net A record at CloudFlare
+  shell: curl -sS https://www.cloudflare.com/api_json.html -d 'a=rec_edit' -d 'tkn={{ cf_api_key }}' -d 'email={{ cf_email }}' -d 'z={{ cf_zone }}' -d 'type=A' -d 'name=chrisshort.net' -d 'id=451249159' -d 'content={{ inventory_hostname }}' -d 'service_mode=0' -d 'ttl=1'
 
 - name: "Clone Let's Encrypt git repo"
   git:
     repo=https://github.com/letsencrypt/letsencrypt
     dest=/opt/letsencrypt
     version=master
+    force=yes
 
 - name: Deploy le-renew-webroot.ini
   template: src=le-renew-webroot.ini.j2 dest=/usr/local/etc/le-renew-webroot.ini
@@ -54,11 +72,25 @@
 - name: Make le-renew-webroot executable
   file: path=/usr/local/sbin/le-renew-webroot mode=0700
 
+- pause: prompt="30 Second Pause to Wait for DNS Changes" seconds=30
+
 - name: "Run Let's Encrypt"
   shell: /usr/local/sbin/le-renew-webroot >> /var/log/le-renewal.log
   args:
     chdir: /usr/local/sbin
     creates: /etc/letsencrypt/live/chrisshort.net/fullchain.pem
+
+- name: Deploy chrisshort.net Nginx Configs
+  template: src={{ item.src }} dest=/etc/nginx/{{ item.dest }}
+  with_items:
+    - { src: 'chrisshort.net.conf.j2', dest: 'conf.d/chrisshort.net.conf' }
+    - { src: 'extra-security.conf.j2', dest: 'includes/extra-security.conf' }
+    - { src: 'redirect.conf.j2', dest: 'includes/redirect.conf' }
+    - { src: 'spdy.conf.j2', dest: 'includes/spdy.conf' }
+    - { src: 'ssl-stapling.conf.j2', dest: 'includes/ssl-stapling.conf' }
+    - { src: 'ssl.conf.j2', dest: 'includes/ssl.conf' }
+  notify: restart nginx
+  tags: nginx_configs
 
 - name: "Setup Let's Encrypt cronjob"
   cron: 
@@ -68,6 +100,3 @@
     hour=5
     minute=15
     state=present
-
-- name: Enable and start nginx
-  service: name=nginx state=started enabled=yes

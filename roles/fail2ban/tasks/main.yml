@@ -1,5 +1,5 @@
 ---
-- name: Ensure packages are up to date
+- name: Ensure fail2ban packages are up to date
   yum: name={{ item }} state=latest
   with_items:
     - fail2ban

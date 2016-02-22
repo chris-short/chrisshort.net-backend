@@ -1,0 +1,6 @@
+---
+- name: "Setup Ghost"
+  become: yes
+  hosts: all:!localhost
+  roles:
+    - ghost

@@ -1,3 +1,0 @@
-- hosts: all
-  roles:
-    - { role: Datadog.datadog, datadog_api_key: "***REMOVED***" }

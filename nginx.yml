@@ -1,0 +1,6 @@
+---
+- name: "Setup nginx and Let's Encrypt" 
+  become: yes
+  hosts: all:!localhost
+  roles:
+    - nginx

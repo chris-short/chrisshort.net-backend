@@ -1,0 +1,45 @@
+# {{ ansible_managed }}
+
+server {  
+
+    server_name chrisshort.net;
+    access_log /var/log/nginx/www_ss.log;
+
+    listen [::]:443 ssl spdy;
+    listen 443 ssl spdy;
+
+    include /etc/nginx/includes/ssl.conf;
+    include /etc/nginx/includes/ssl-stapling.conf;
+    include /etc/nginx/includes/spdy.conf;
+    include /etc/nginx/includes/extra-security.conf;
+
+    location ~ /.well-known {
+        allow all;
+        root /var/www/;
+    }    
+
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|eot|woff)$ {
+      proxy_ignore_headers "Cache-Control";
+      expires 10y;
+      proxy_pass http://127.0.0.1:2368;
+    }
+
+    location ~ ^/(?:ghost|signout) {
+      expires 0;
+      add_header Cache-Control "no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0";
+      proxy_pass http://127.0.0.1:2368;
+    }
+
+    location / {
+      proxy_set_header   X-Real-IP $remote_addr;
+      proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header   Host $http_host;
+      proxy_set_header   X-Forwarded-Proto $scheme;
+      proxy_ignore_headers "Set-Cookie";
+      proxy_hide_header  "Set-Cookie";
+      proxy_pass         http://127.0.0.1:2368;
+    }    
+    
+    include /etc/nginx/includes/redirect.conf;
+  
+}
