@@ -19,8 +19,6 @@
     chdir: /etc/ssl/certs
     creates: /etc/ssl/certs/dhparam.pem
     
-#  copy: src=dhparam.pem dest=/etc/ssl/certs/dhparam.pem owner=root group=root mode=0644
-
 - name: Delete /etc/nginx/conf.d
   file: path=/etc/nginx/conf.d state=absent
 
@@ -39,6 +37,12 @@
   tags:
     - nginx_configs
     - well_known
+
+- name: Deploy nginx.conf
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+  notify: restart nginx
+  tags:
+    - nginx_configs
 
 - name: Use firewalld to open ports 80/443
   shell: firewall-cmd --permanent --add-service {{ item }}
@@ -84,11 +88,7 @@
   template: src={{ item.src }} dest=/etc/nginx/{{ item.dest }}
   with_items:
     - { src: 'chrisshort.net.conf.j2', dest: 'conf.d/chrisshort.net.conf' }
-    - { src: 'extra-security.conf.j2', dest: 'includes/extra-security.conf' }
-    - { src: 'redirect.conf.j2', dest: 'includes/redirect.conf' }
-    - { src: 'spdy.conf.j2', dest: 'includes/spdy.conf' }
-    - { src: 'ssl-stapling.conf.j2', dest: 'includes/ssl-stapling.conf' }
-    - { src: 'ssl.conf.j2', dest: 'includes/ssl.conf' }
+    - { src: 'well-known-post-le.conf.j2', dest: 'conf.d/well-known.conf' }
   notify: restart nginx
   tags: nginx_configs
 

@@ -11,4 +11,8 @@ server {
     root        /var/www;
   }
 
+  location / {
+    return 301 https://$server_name$request_uri;
+  }
+
 }
