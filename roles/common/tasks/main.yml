@@ -17,6 +17,7 @@
     - iptraf
     - libselinux-python
     - man
+    - perf
     - rsync
     - strace
     - sysstat
