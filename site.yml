@@ -43,3 +43,4 @@
     - fail2ban
     - ghost
     - nginx
+    - yum-cron
