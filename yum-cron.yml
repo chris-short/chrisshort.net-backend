@@ -1,0 +1,7 @@
+---
+- name: Setup yum-cron
+  become: True
+  hosts: all
+  roles:
+    - smtp
+    - yum-cron

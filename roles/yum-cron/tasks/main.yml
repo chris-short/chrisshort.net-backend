@@ -1,0 +1,11 @@
+---
+- name: Install yum-cron
+  yum: name=yum-cron state=latest
+
+- name: Instantiate yum-conf config (EL7)
+  template: src=yum-cron.conf.j2 dest=/etc/yum/yum-cron.conf
+  when: ansible_distribution == "CentOS" or ansible_distribution == "RedHat" and ansible_distribution_major_version >= 7
+  notify: restart yumcron
+
+- name: Enable yum-cron service
+  service: name=yum-cron state=running enabled=yes
