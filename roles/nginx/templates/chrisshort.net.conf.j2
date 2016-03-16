@@ -12,11 +12,13 @@
 # http://www.function.fr/tuning-ghost-performance-with-nginx/
 # Security Headers:
 # https://scotthelme.co.uk/hardening-your-http-response-headers/
+# http2:
+# http://m12.io/blog/http-2-with-haproxy-and-nginx-guide
 
 server {
    server_tokens off;
    server_name chrisshort.net;
-   listen 443 ssl spdy;
+   listen 443 ssl spdy http2;
    spdy_headers_comp 6;
    spdy_keepalive_timeout 300;
    keepalive_timeout 300;

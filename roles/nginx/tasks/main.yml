@@ -2,8 +2,11 @@
 - name: Disable SELinux
   selinux: state=disabled
 
-- name: Install nginx repo
-  yum: name={{ nginx_repo }} state=present
+#- name: Install nginx repo
+#  yum: name={{ nginx_repo }} state=present
+
+- name: Deploy mainline nginx repo configuration
+  template: src=nginx.repo.j2 dest=/etc/yum.repos.d/nginx.repo
 
 - name: "Install Nginx and Let's Encrypt Dependencies"
   yum: name={{ item }} state=latest
