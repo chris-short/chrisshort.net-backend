@@ -1,0 +1,13 @@
+- name: Backup chrisshort.net
+  hosts: all
+  gather_facts: False
+  tasks:
+    - name: Sync to backup_paths
+      synchronize:
+        mode=pull
+        src={{ ghost_path }}
+        dest={{ item }}
+#        recursive=yes
+#        checksum=yes
+#        compress=yes
+      with_items: "{{ backup_paths }}"
