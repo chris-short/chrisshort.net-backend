@@ -93,12 +93,14 @@
     - { src: 'chrisshort.net.conf.j2', dest: 'conf.d/chrisshort.net.conf' }
     - { src: 'well-known-post-le.conf.j2', dest: 'conf.d/well-known.conf' }
   notify: restart nginx
-  tags: nginx_configs
+  tags:
+    - nginx_configs
+    - chrisshort.net
 
 - name: "Setup Let's Encrypt cronjob"
   cron: 
     name="Let's Encrypt Renewal"
-    job="/usr/local/sbin/le-renew-webroot >> /var/log/le-renewal.log"
+    job="date >> /var/log/le-renewal.log && /usr/local/sbin/le-renew-webroot >> /var/log/le-renewal.log"
     weekday=0
     hour=5
     minute=15
