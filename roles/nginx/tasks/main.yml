@@ -71,6 +71,9 @@
 - name: Deploy le-renew-webroot.ini
   template: src=le-renew-webroot.ini.j2 dest=/usr/local/etc/le-renew-webroot.ini
 
+- name: Deploy le-renewal.log logrotate
+  template: src=le-renewal-logrotate.j2 dest=/etc/logrotate.d/le-renewal
+
 - name: Get le-renew-webroot script
   get_url:
     url=https://gist.githubusercontent.com/thisismitch/e1b603165523df66d5cc/raw/fbffbf358e96110d5566f13677d9bd5f4f65794c/le-renew-webroot
