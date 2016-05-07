@@ -15,7 +15,7 @@
   user: user=ghost state=present system=yes shell=/bin/false createhome=no
 
 - name: Make Ghost Directory
-  file: path=/var/www/ghost state=directory mode=0755 owner=ghost group=ghost
+  file: path={{ ghost_path }} state=directory mode=0755 owner=ghost group=ghost
 
 - name: Synchronize chrisshort.net backup
   synchronize:
@@ -28,11 +28,11 @@
 - name: Fix ownership on /var/www
   file: path=/var/www owner=root group=root
 
-- name: Fix ownership on /var/www/ghost
-  file: path=/var/www/ghost owner=ghost group=ghost recurse=yes
+- name: Fix ownership on ghost_path
+  file: path={{ ghost_path }} owner=ghost group=ghost recurse=yes
 
 - name: npm install Ghost
-  shell: "cd /var/www/ghost && npm install --production"
+  shell: "cd {{ ghost_path }} && npm install --production"
   register: ghost_install
   failed_when: ghost_install.rc != 0
   changed_when: false

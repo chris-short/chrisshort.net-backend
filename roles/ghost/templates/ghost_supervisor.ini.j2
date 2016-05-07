@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 [program:ghost]
-command = node /var/www/ghost/index.js
-directory = /var/www/ghost
+command = node {{ ghost_path }}/index.js
+directory = {{ ghost_path }}
 user = ghost
 autostart = true
 autorestart = true
