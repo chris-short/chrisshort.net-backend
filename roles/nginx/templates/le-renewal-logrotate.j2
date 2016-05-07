@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+/var/log/le-renewal.log {
+	rotate 12
+	weekly
+	compress
+	copytruncate
+	dateext
+	notifempty
+	missingok
+}
