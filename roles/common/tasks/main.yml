@@ -19,6 +19,7 @@
     - curl
     - iptraf
     - libselinux-python
+    - lsof
     - man
     - perf
     - rsync
