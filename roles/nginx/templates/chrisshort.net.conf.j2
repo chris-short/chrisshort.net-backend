@@ -40,11 +40,12 @@ server {
    add_header X-Xss-Protection "1; mode=block" always;
    add_header X-Frame-Options "SAMEORIGIN" always;
    add_header X-Content-Type-Options "nosniff" always;
-   add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://www.google-analytics.com https://ssl.google-analytics.com https://connect.facebook.net https://chrisshort.disqus.com; img-src 'self' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.disquscdn.com; font-src 'self' https://fonts.gstatic.com https://themes.googleusercontent.com; frame-src https://www.facebook.com https://s-static.ak.facebook.com https://disqus.com; object-src 'none'";
+   add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://www.google-analytics.com https://ssl.google-analytics.com https://connect.facebook.net https://chrisshort.disqus.com https://*.cloudflare.com; img-src 'self' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.disquscdn.com; font-src 'self' https://fonts.gstatic.com https://themes.googleusercontent.com; frame-src https://www.facebook.com https://s-static.ak.facebook.com https://disqus.com; object-src 'none'";
+   gzip on;
    gzip_proxied any;
-   gzip_vary on;
    gzip_types text/plain text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript application/json application/javascript;
    gzip_static on;
+   gzip_vary on;
    location / {
         proxy_cache STATIC;
         proxy_cache_valid 200 30m;
@@ -98,6 +99,8 @@ server {
     rewrite ^/post/65749043/the-teachings-of-derwyn-lackey/ /the-teachings-of-derwyn-lackey/ permanent;
     rewrite ^/post/65749306/a-brief-history-of-center-for-purposeful-living-by-john/ /a-brief-history-of-center-for-purposeful-living-by-john-david-short-2/ permanent;
     rewrite ^/post/65749568/another-center-for-purposeful-living-recruit-saved/ /another-center-for-purposeful-living-recruit-saved/ permanent;
+    # From Elsewhere Back to chrisshort.net
+    rewrite ^/archives/2004/09/my-pet-jawa-featured-on-msnbc-kinda.php / permanent;
     # Back to Tumblr
     rewrite ^/post/(.*)$ / permanent;
     rewrite ^/tagged/(.*)$ http://chrisshort.tumblr.com/tagged/$1 permanent;
