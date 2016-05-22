@@ -3,6 +3,12 @@
 # http://support.ghost.org/supported-node-versions/
 # https://github.com/nodejs/LTS
 # 
+- name: New Relic Deployment
+  newrelic_deployment:
+    token={{ nr_api_key }}
+    app_name=ghost
+    user='ansible ghost deployment'
+
 - name: Install Node.js and npm 
   yum: name={{ item }} state=latest
   with_items:

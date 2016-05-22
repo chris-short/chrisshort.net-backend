@@ -1,0 +1,6 @@
+---
+- name: "Setup New Relic Monitoring"
+  become: yes
+  hosts: all:!localhost
+  roles:
+    - newrelic

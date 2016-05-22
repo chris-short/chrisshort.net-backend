@@ -22,6 +22,8 @@
     - lsof
     - man
     - perf
+    - python-pip
+    - python-virtualenv
     - rsync
     - strace
     - sysstat
@@ -40,3 +42,6 @@
 
 - name: Update Everything
   yum: name=* state=latest
+
+- name: pip install httplib2
+  pip: name=httplib2 state=latest

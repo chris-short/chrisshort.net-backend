@@ -2,8 +2,13 @@
 - name: Disable SELinux
   selinux: state=disabled
 
-#- name: Install nginx repo
-#  yum: name={{ nginx_repo }} state=present
+- name: New Relic Deployment
+  newrelic_deployment:
+    token={{ nr_api_key }}
+    app_name=ghost
+    user='ansible nginx deployment'
+  tags:
+    - nginx_configs
 
 - name: Deploy mainline nginx repo configuration
   template: src=nginx.repo.j2 dest=/etc/yum.repos.d/nginx.repo
@@ -23,7 +28,10 @@
     creates: /etc/ssl/certs/dhparam.pem
     
 - name: Delete /etc/nginx/conf.d
-  file: path=/etc/nginx/conf.d state=absent
+  file: path=/etc/nginx/conf.d/{{ item }} state=absent
+  with_items:
+    - chrisshort.net.conf
+    - well-known.conf
 
 - name: Create .well-known directory
   file: path=/var/www/.well-known state=directory owner=root group=root recurse=yes

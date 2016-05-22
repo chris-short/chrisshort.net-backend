@@ -6,8 +6,55 @@
   yum: name={{ item }} state=latest
   with_items:
     - newrelic-sysmond
-  notify: restart newrelic-sysmond
+    - nginx-nr-agent
+  notify:
+    - restart newrelic-sysmond
+    - restart nginx-nr-agent
+  tags:
+    - nginx-nr-agent
 
 - name: Configure New Relic Server Monitor
   template: src=nrsysmond.cfg.j2 dest=/etc/newrelic/nrsysmond.cfg
   notify: restart newrelic-sysmond
+
+- name: Install New Relic APM and Dependencies
+  shell: "cd {{ ghost_path }} && npm install {{ item }}"
+  with_items:
+    - core-util-is
+    - process-nextick-args
+    - isarray
+    - util-deprecate
+    - extend
+    - agent-base
+    - debug
+    - newrelic
+  notify: restart supervisord service
+  tags:
+    - apm
+
+- name: Configure New Relic APM
+  template: src=newrelic.js.j2 dest={{ ghost_path }}/newrelic.js group=ghost owner=ghost
+  notify: restart supervisord service
+  tags:
+    - apm
+
+- name: Require New Relic in Ghost Startup Script
+  lineinfile:
+    dest={{ ghost_path }}/index.js
+    insertbefore=BOF
+    line="require('newrelic');"
+    state=present
+  notify: restart supervisord service
+  tags:
+    - apm
+
+- name: Configure New Relic Nginx Plugin Agent
+  template: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: 'nginx-nr-agent.ini.j2', dest: '/etc/nginx-nr-agent/nginx-nr-agent.ini' }
+    - { src: 'nginx_stub_status.conf.j2', dest: '/etc/nginx/conf.d/well-known.conf' }
+  notify:
+    - restart nginx-nr-agent
+    - restart nginx
+  tags:
+    - nginx-nr-agent
