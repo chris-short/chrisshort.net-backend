@@ -1,3 +1,5 @@
+/** {{ ansible_managed }} */
+/** https://github.com/newrelic/node-newrelic/blob/master/lib/config.default.js */
 'use strict'
 
 /**
@@ -14,13 +16,22 @@ exports.config = {
   /**
    * Your New Relic license key.
    */
-  license_key: '***REMOVED***',
+  license_key: '{{ nr_license }}',
   logging: {
     /**
      * Level at which to log. 'trace' is most useful to New Relic when diagnosing
      * issues with the agent, 'info' and higher will impose the least overhead on
      * production applications.
      */
-    level: 'trace'
+    level: 'trace',
+    /**
+     * Where to put the log file -- by default just uses process.cwd +
+     * 'newrelic_agent.log'. A special case is a filepath of 'stdout',
+     * in which case all logging will go to stdout, or 'stderr', in which
+     * case all logging will go to stderr.
+     *
+     * @env NEW_RELIC_LOG
+     */
+    filepath: '/var/log/newrelic/newrelic_agent.log'
   }
 }
