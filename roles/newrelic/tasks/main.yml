@@ -1,4 +1,10 @@
 ---
+- name: New Relic Deployment
+  newrelic_deployment:
+    token={{ nr_api_key }}
+    app_name=ghost
+    user='ansible newrelic'
+
 - name: Setup New Relic Repo
   yum: name=https://download.newrelic.com/pub/newrelic/el5/i386/newrelic-repo-5-3.noarch.rpm state=present
 
@@ -37,6 +43,9 @@
   notify: restart supervisord service
   tags:
     - apm
+
+- name: Deploy newrelic_agent.log logrotate
+  template: src=newrelic_agent_logrotate.j2 dest=/etc/logrotate.d/newrelic_agent
 
 - name: Require New Relic in Ghost Startup Script
   lineinfile:
