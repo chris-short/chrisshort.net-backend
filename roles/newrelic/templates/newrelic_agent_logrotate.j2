@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+/var/log/newrelic/newrelic_agent.log {
+    compress
+    copytruncate
+    missingok
+    rotate 3
+    size 5M
+    create 0644 ghost ghost
+}
