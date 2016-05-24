@@ -1,0 +1,52 @@
+---
+- name: Upgrade Ghost
+  become: yes
+  hosts: all:!localhost
+  vars:
+    - ghost_latest: /tmp/ghost-latest
+  tasks:
+    - name: New Relic Deployment
+      newrelic_deployment:
+        token={{ nr_api_key }}
+        app_name=ghost
+        user='ansible ghost upgrade'
+
+    - name: Create temp Directory
+      file: path={{ ghost_latest }} state=directory
+
+    - name: Unarchive Lastest Ghost
+      unarchive: src=https://ghost.org/zip/ghost-latest.zip dest={{ ghost_latest }} copy=no
+
+    - name: Remove Production Ghost Core
+      file: path={{ ghost_path }}/core state=absent
+
+    - name: Upgrade Ghost core, json files, and index.js
+      synchronize: src={{ ghost_latest }}/{{ item }} dest={{ ghost_path }}/{{ item }} recursive=yes
+      delegate_to: "{{ inventory_hostname }}"
+      with_items:
+        - index.js
+        - core/
+        - npm-shrinkwrap.json
+        - package.json
+
+    - name: Require New Relic in Ghost Startup Script
+      lineinfile:
+        dest={{ ghost_path }}/index.js
+        insertbefore=BOF
+        line="require('newrelic');"
+        state=present
+
+    - name: Replace favicon
+      get_url: url=https://chrisshort.s3.amazonaws.com/favicon.ico dest=/var/www/ghost/core/shared/favicon.ico force=yes
+
+    - name: Fix ownership on ghost_path
+      file: path={{ ghost_path }} owner=ghost group=ghost recurse=yes
+
+    - name: npm install Ghost
+      shell: "cd {{ ghost_path }} && npm install --production"
+
+    - name: Restart supervisord
+      service: name=supervisord state=restarted
+
+    - name: Destroy temp Directory
+      file: path={{ ghost_latest }} state=absent
