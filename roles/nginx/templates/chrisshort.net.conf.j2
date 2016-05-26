@@ -40,7 +40,7 @@ server {
    add_header X-Xss-Protection "1; mode=block" always;
    add_header X-Frame-Options "SAMEORIGIN" always;
    add_header X-Content-Type-Options "nosniff" always;
-   add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://*.google-analytics.com https://connect.facebook.net https://chrisshort.disqus.com https://*.cloudflare.com https://*.newrelic.com https://*.nr-data.net https://use.fonticons.com https://cdn.ampproject.org; img-src 'self' https:; style-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.disquscdn.com https://*.netdna-ssl.com; font-src 'self' data: https://fonts.gstatic.com https://themes.googleusercontent.com; child-src https://*.facebook.com https://disqus.com; object-src 'none'";
+   add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://*.google-analytics.com https://connect.facebook.net https://chrisshort.disqus.com https://*.cloudflare.com https://*.newrelic.com https://*.nr-data.net https://use.fonticons.com https://cdn.ampproject.org https://*.twitter.com https://*.google.com https://*.gstatic.com https://*.googlesyndication.com; img-src 'self' https: data:; style-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.disquscdn.com https://*.netdna-ssl.com https://*.twitter.com; font-src 'self' data: https://fonts.gstatic.com https://themes.googleusercontent.com; child-src https://*.facebook.com https://disqus.com https://*.doubleclick.net; object-src 'none'; connect-src https://*.googlesyndication.com";
    gzip on;
    gzip_proxied any;
    gzip_types text/plain text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript application/json application/javascript;
@@ -102,7 +102,7 @@ server {
     # From Elsewhere Back to chrisshort.net
     rewrite ^/archives/2004/09/my-pet-jawa-featured-on-msnbc-kinda.php / permanent;
     # Back to Tumblr
-    rewrite ^/post/(.*)$ / permanent;
+    rewrite ^/post/(.*)$ http://chrisshort.tumblr.com/post/$1 permanent;
     rewrite ^/tagged/(.*)$ http://chrisshort.tumblr.com/tagged/$1 permanent;
     rewrite ^/archive(.*)$ http://chrisshort.tumblr.com/archive$1 permanent;
     rewrite ^/image/(.*)$ http://chrisshort.tumblr.com/image/$1 permanent;
