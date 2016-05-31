@@ -67,7 +67,16 @@
 
 # https://www.cloudflare.com/docs/client-api.html (rec_load_all to find all records, rec_edit to change them)
 - name: Update chrisshort.net A record at CloudFlare
-  shell: curl -sS https://www.cloudflare.com/api_json.html -d 'a=rec_edit' -d 'tkn={{ cf_api_key }}' -d 'email={{ cf_email }}' -d 'z={{ cf_zone }}' -d 'type=A' -d 'name=chrisshort.net' -d 'id=451249159' -d 'content={{ inventory_hostname }}' -d 'service_mode=0' -d 'ttl=1'
+  cloudflare_dns:
+    zone: "{{ cf_zone }}"
+    record: "{{ item }}"
+    type: A
+    value: "{{ inventory_hostname }}"
+    account_email: "{{ cf_email }}"
+    account_api_token: "{{ cf_api_key }}"
+  with_items: "{{ cf_records }}"
+  tags: cloudflare
+#  shell: curl -sS https://www.cloudflare.com/api_json.html -d 'a=rec_edit' -d 'tkn={{ cf_api_key }}' -d 'email={{ cf_email }}' -d 'z={{ cf_zone }}' -d 'type=A' -d 'name=chrisshort.net' -d 'id=451249159' -d 'content={{ inventory_hostname }}' -d 'service_mode=0' -d 'ttl=1'
 
 - name: "Clone Let's Encrypt git repo"
   git:
