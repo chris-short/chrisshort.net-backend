@@ -16,6 +16,8 @@
 # http://m12.io/blog/http-2-with-haproxy-and-nginx-guide
 # Content Security Policy:
 # https://gist.github.com/plentz/6737338
+# CloudFlare Specific:
+# https://support.cloudflare.com/hc/en-us/articles/204494148
 
 server {
    server_tokens off;
@@ -34,13 +36,15 @@ server {
    ssl_buffer_size 1400;              
    ssl_stapling on;
    ssl_stapling_verify on;
+   ssl_client_certificate /etc/ssl/certs/origin-pull-ca.pem;
+   ssl_verify_client on;
    resolver 8.8.8.8 8.8.4.4 valid=300s;
    add_header Strict-Transport-Security "max-age=15768000; includeSubDomains; preload";
    add_header X-Cache $upstream_cache_status;
    add_header X-Xss-Protection "1; mode=block" always;
    add_header X-Frame-Options "SAMEORIGIN" always;
    add_header X-Content-Type-Options "nosniff" always;
-   add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://*.google-analytics.com https://connect.facebook.net https://chrisshort.disqus.com https://*.cloudflare.com https://*.newrelic.com https://*.nr-data.net https://use.fonticons.com https://cdn.ampproject.org https://*.twitter.com https://*.google.com https://*.gstatic.com https://*.googlesyndication.com; img-src 'self' https: data:; style-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.disquscdn.com https://*.netdna-ssl.com https://*.twitter.com https://*.googlesyndication.com; font-src 'self' data: https://fonts.gstatic.com https://themes.googleusercontent.com; child-src https://*.facebook.com https://disqus.com https://*.doubleclick.net; object-src 'none'; connect-src https://*.googlesyndication.com";
+   add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.chrisshort.net https://code.jquery.com https://*.google-analytics.com https://connect.facebook.net https://chrisshort.disqus.com https://*.cloudflare.com https://*.newrelic.com https://*.nr-data.net https://use.fonticons.com https://cdn.ampproject.org https://*.twitter.com https://*.google.com https://*.gstatic.com https://*.googlesyndication.com; img-src 'self' https: data:; style-src 'self' 'unsafe-inline' https://*.chrisshort.net https://*.googleapis.com https://*.disquscdn.com https://*.netdna-ssl.com https://*.twitter.com https://*.googlesyndication.com; font-src 'self' data: https://fonts.gstatic.com https://themes.googleusercontent.com; child-src https://*.facebook.com https://disqus.com https://*.doubleclick.net; object-src 'self' https://*.googlesyndication.com; connect-src 'self' https://*.googlesyndication.com";
    gzip on;
    gzip_proxied any;
    gzip_types text/plain text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript application/json application/javascript;
@@ -81,7 +85,7 @@ server {
 #        access_log off;
 #        expires max;
 #    }
-    location ~ ^/(?:ghost|signout) { 
+    location ~ ^/(?:ghost|p|signout) { 
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Host $http_host;
         proxy_pass {{ ghost_proxy }};
@@ -111,4 +115,8 @@ server {
     rewrite ^/ask/(.*)$ http://chrisshort.tumblr.com/ask/$1 permanent;
     # 404 Fixes
     rewrite ^/index.html / permanent;
+    # content/images to cdn
+    rewrite ^/content/images/2015/10/(.*)$ https://cdn.chrisshort.net/$1 permanent;
+    rewrite ^/content/images/2016/05/(.*)$ https://cdn.chrisshort.net/$1 permanent;
+    rewrite ^/content/images/(.*)$ https://cdn.chrisshort.net/$1 permanent;
 }

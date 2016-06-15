@@ -65,6 +65,9 @@
 - name: Enable and start nginx
   service: name=nginx state=restarted enabled=yes
 
+- name: Get CloudFlare CA
+  get_url: url=https://support.cloudflare.com/hc/en-us/article_attachments/201243967/origin-pull-ca.pem dest=/etc/ssl/certs/origin-pull-ca.pem
+
 # https://www.cloudflare.com/docs/client-api.html (rec_load_all to find all records, rec_edit to change them)
 - name: Update chrisshort.net A record at CloudFlare
   cloudflare_dns:
@@ -99,7 +102,7 @@
 - name: Make le-renew-webroot executable
   file: path=/usr/local/sbin/le-renew-webroot mode=0700
 
-- pause: prompt="30 Second Pause to Wait for DNS Changes" seconds=30
+- pause: prompt="5 Second Pause to Wait for DNS Changes" seconds=5
 
 - name: "Run Let's Encrypt"
   shell: /usr/local/sbin/le-renew-webroot >> /var/log/le-renewal.log
