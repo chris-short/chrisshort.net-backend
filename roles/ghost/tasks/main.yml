@@ -18,7 +18,7 @@
 # http://support.ghost.org/installing-ghost-linux/
 # https://blog.sahajsoft.com/ansible-play-to-install-ghost-blog-engine-on-ubuntu-server/
 - name: Add ghost daemon user
-  user: user=ghost state=present system=yes shell=/bin/false createhome=no
+  user: user=ghost state=present system=yes shell=/bin/false createhome=yes
 
 - name: Make Ghost Directory
   file: path={{ ghost_path }} state=directory mode=0755 owner=ghost group=ghost
@@ -44,14 +44,27 @@
   changed_when: false
 
 # http://support.ghost.org/deploying-ghost/
-- name: Install Supervisor
-  yum: name=supervisor state=latest
+#- name: Install Supervisor
+#  yum: name=supervisor state=latest
 
-- name: Instantiate ghost supervisord config
-  template: src=ghost_supervisor.ini.j2 dest=/etc/supervisord.d/ghost.ini
+#- name: Instantiate ghost supervisord config
+#  template: src=ghost_supervisor.ini.j2 dest=/etc/supervisord.d/ghost.ini
 
-- name: Start supervisord service
-  service: name=supervisord state=started enabled=yes
+#- name: Start supervisord service
+#  service: name=supervisord state=started enabled=yes
 
-- name: Start ghost
-  supervisorctl: name=ghost state=started
+#- name: Start ghost
+#  supervisorctl: name=ghost state=started
+
+- name: Install PM2
+  npm:
+    name: pm2
+    global: yes
+    version: latest
+  notify: restart pm2
+
+- name: Launch Ghost with PM2
+  shell: 'NODE_ENV=production pm2 start /var/www/ghost/index.js --name "ghost" -u ghost --hp /home/ghost'
+
+- name: PM2 Startup Script Generation
+  shell: pm2 startup systemd

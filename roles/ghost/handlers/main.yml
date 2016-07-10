@@ -1,0 +1,6 @@
+---
+- name: restart pm2
+  service:
+    name: pm2
+    state: restarted
+  when: pm2_service_state != 'stopped'

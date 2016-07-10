@@ -6,7 +6,7 @@
     user='ansible newrelic'
 
 - name: Setup New Relic Repo
-  yum: name=https://download.newrelic.com/pub/newrelic/el5/i386/newrelic-repo-5-3.noarch.rpm state=present
+  yum: name={{ nr_repo }} state=present
 
 - name: Install New Relic Packages
   yum: name={{ item }} state=latest
