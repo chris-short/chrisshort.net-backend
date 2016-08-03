@@ -34,13 +34,13 @@
     - agent-base
     - debug
     - newrelic
-  notify: restart supervisord service
+  notify: restart pm2 
   tags:
     - apm
 
 - name: Configure New Relic APM
   template: src=newrelic.js.j2 dest={{ ghost_path }}/newrelic.js group=ghost owner=ghost
-  notify: restart supervisord service
+  notify: restart pm2
   tags:
     - apm
 
@@ -53,7 +53,7 @@
     insertbefore=BOF
     line="require('newrelic');"
     state=present
-  notify: restart supervisord service
+  notify: restart pm2
   tags:
     - apm
 

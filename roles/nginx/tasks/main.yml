@@ -20,6 +20,7 @@
     - git
     - nginx
     - openssl
+#    - certbot
 
 - name: Deploy dhparam.pem
   shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
@@ -33,8 +34,8 @@
     - chrisshort.net.conf
     - well-known.conf
 
-- name: Create .well-known directory
-  file: path=/var/www/.well-known state=directory owner=root group=root recurse=yes
+#- name: Create .well-known directory
+#  file: path=/var/www/.well-known state=directory owner=root group=root recurse=yes
 
 - name: Create /etc/nginx/ directories
   file: path=/etc/nginx/{{ item }} state=directory
@@ -42,12 +43,12 @@
     - conf.d
     - includes
 
-- name: Deploy well-known.conf
-  template: src=well-known.conf.j2 dest=/etc/nginx/conf.d/well-known.conf
-  notify: restart nginx
-  tags:
-    - nginx_configs
-    - well_known
+#- name: Deploy well-known.conf
+#  template: src=well-known.conf.j2 dest=/etc/nginx/conf.d/well-known.conf
+#  notify: restart nginx
+#  tags:
+#    - nginx_configs
+#    - well_known
 
 - name: Deploy nginx.conf
   template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
@@ -62,8 +63,8 @@
     - https
   changed_when: False
 
-- name: Enable and start nginx
-  service: name=nginx state=restarted enabled=yes
+#- name: Enable and start nginx
+#  service: name=nginx state=restarted enabled=yes
 
 - name: Get CloudFlare CA
   get_url: url=https://support.cloudflare.com/hc/en-us/article_attachments/201243967/origin-pull-ca.pem dest=/etc/ssl/certs/origin-pull-ca.pem
@@ -81,50 +82,50 @@
   tags: cloudflare
 #  shell: curl -sS https://www.cloudflare.com/api_json.html -d 'a=rec_edit' -d 'tkn={{ cf_api_key }}' -d 'email={{ cf_email }}' -d 'z={{ cf_zone }}' -d 'type=A' -d 'name=chrisshort.net' -d 'id=451249159' -d 'content={{ inventory_hostname }}' -d 'service_mode=0' -d 'ttl=1'
 
-- name: "Clone Let's Encrypt git repo"
-  git:
-    repo=https://github.com/letsencrypt/letsencrypt
-    dest=/opt/letsencrypt
-    version=master
-    force=yes
+#- name: "Clone Let's Encrypt git repo"
+#  git:
+#    repo=https://github.com/letsencrypt/letsencrypt
+#    dest=/opt/letsencrypt
+#    version=master
+#    force=yes
 
-- name: Deploy le-renew-webroot.ini
-  template: src=le-renew-webroot.ini.j2 dest=/usr/local/etc/le-renew-webroot.ini
+#- name: Deploy le-renew-webroot.ini
+#  template: src=le-renew-webroot.ini.j2 dest=/usr/local/etc/le-renew-webroot.ini
+#
+#- name: Deploy le-renewal.log logrotate
+#  template: src=le-renewal-logrotate.j2 dest=/etc/logrotate.d/le-renewal
 
-- name: Deploy le-renewal.log logrotate
-  template: src=le-renewal-logrotate.j2 dest=/etc/logrotate.d/le-renewal
-
-- name: Get le-renew-webroot script
-  get_url:
-    url=https://gist.githubusercontent.com/thisismitch/e1b603165523df66d5cc/raw/fbffbf358e96110d5566f13677d9bd5f4f65794c/le-renew-webroot
-    dest=/usr/local/sbin/le-renew-webroot
+#- name: Get le-renew-webroot script
+#  get_url:
+#    url=https://gist.githubusercontent.com/thisismitch/e1b603165523df66d5cc/raw/fbffbf358e96110d5566f13677d9bd5f4f65794c/le-renew-webroot
+#    dest=/usr/local/sbin/le-renew-webroot
     
-- name: Make le-renew-webroot executable
-  file: path=/usr/local/sbin/le-renew-webroot mode=0700
+#- name: Make le-renew-webroot executable
+#  file: path=/usr/local/sbin/le-renew-webroot mode=0700
 
 - pause: prompt="5 Second Pause to Wait for DNS Changes" seconds=5
 
-- name: "Run Let's Encrypt"
-  shell: /usr/local/sbin/le-renew-webroot >> /var/log/le-renewal.log
-  args:
-    chdir: /usr/local/sbin
-    creates: /etc/letsencrypt/live/chrisshort.net/fullchain.pem
+#- name: Run Certbot
+#  shell: certbot >> /var/log/le-renewal.log
+#  args:
+#    chdir: /usr/local/sbin
+#    creates: /etc/letsencrypt/live/chrisshort.net/fullchain.pem
 
 - name: Deploy chrisshort.net Nginx Configs
   template: src={{ item.src }} dest=/etc/nginx/{{ item.dest }}
   with_items:
     - { src: 'chrisshort.net.conf.j2', dest: 'conf.d/chrisshort.net.conf' }
-    - { src: 'well-known-post-le.conf.j2', dest: 'conf.d/well-known.conf' }
+#    - { src: 'well-known-post-le.conf.j2', dest: 'conf.d/well-known.conf' }
   notify: restart nginx
   tags:
     - nginx_configs
     - chrisshort.net
 
-- name: "Setup Let's Encrypt cronjob"
-  cron: 
-    name="Let's Encrypt Renewal"
-    job="date >> /var/log/le-renewal.log && /usr/local/sbin/le-renew-webroot >> /var/log/le-renewal.log"
-    weekday=0
-    hour=5
-    minute=15
-    state=present
+#- name: "Setup Let's Encrypt cronjob"
+#  cron: 
+#    name="Let's Encrypt Renewal"
+#    job="date >> /var/log/le-renewal.log && certbot renew >> /var/log/le-renewal.log"
+#    weekday=0
+#    hour=5
+#    minute=15
+#    state=present

@@ -36,8 +36,8 @@
         line="require('newrelic');"
         state=present
 
-    - name: Replace favicon
-      get_url: url=https://chrisshort.s3.amazonaws.com/favicon.ico dest=/var/www/ghost/core/shared/favicon.ico force=yes
+    #- name: Replace favicon
+    #  get_url: url=https://cdn.chrisshort.net/favicon.ico dest=/var/www/ghost/core/shared/favicon.ico force=yes
 
     - name: Fix ownership on ghost_path
       file: path={{ ghost_path }} owner=ghost group=ghost recurse=yes

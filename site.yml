@@ -44,7 +44,7 @@
     - ghost
     - nginx
     - newrelic
-    - yum-cron
+#    - yum-cron
 
 - hosts: all:!localhost
   become: True

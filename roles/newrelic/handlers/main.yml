@@ -8,5 +8,5 @@
 - name: restart nginx
   service: name=nginx state=restarted enabled=yes
 
-- name: restart supervisord service
-  service: name=supervisord state=restarted enabled=yes
+- name: restart pm2
+  service: name=pm2 state=restarted enabled=yes

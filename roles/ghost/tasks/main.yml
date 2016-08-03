@@ -9,11 +9,22 @@
     app_name=ghost
     user='ansible ghost deployment'
 
+- name: Add Node Yum Repo
+  yum_repository:
+    file: nodesource-el
+    name: nodesource
+    description: Node.js Packages for Enterprise Linux 7 - $basearch
+    baseurl: https://rpm.nodesource.com/pub_4.x/el/7/$basearch
+    failovermethod: priority
+    enabled: yes
+    gpgcheck: yes
+    gpgkey: https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
+    
 - name: Install Node.js and npm 
-  yum: name={{ item }} state=latest
+  yum: name={{ item }} state=latest disablerepo=epel
   with_items:
     - nodejs
-    - npm
+#    - npm
 
 # http://support.ghost.org/installing-ghost-linux/
 # https://blog.sahajsoft.com/ansible-play-to-install-ghost-blog-engine-on-ubuntu-server/
@@ -43,28 +54,18 @@
   failed_when: ghost_install.rc != 0
   changed_when: false
 
-# http://support.ghost.org/deploying-ghost/
-#- name: Install Supervisor
-#  yum: name=supervisor state=latest
-
-#- name: Instantiate ghost supervisord config
-#  template: src=ghost_supervisor.ini.j2 dest=/etc/supervisord.d/ghost.ini
-
-#- name: Start supervisord service
-#  service: name=supervisord state=started enabled=yes
-
-#- name: Start ghost
-#  supervisorctl: name=ghost state=started
-
 - name: Install PM2
   npm:
     name: pm2
     global: yes
     version: latest
   notify: restart pm2
+  tags: pm2
 
 - name: Launch Ghost with PM2
   shell: 'NODE_ENV=production pm2 start /var/www/ghost/index.js --name "ghost" -u ghost --hp /home/ghost'
+  tags: pm2
 
 - name: PM2 Startup Script Generation
   shell: pm2 startup systemd
+  tags: pm2
