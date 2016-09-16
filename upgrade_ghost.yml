@@ -36,17 +36,20 @@
         line="require('newrelic');"
         state=present
 
-    #- name: Replace favicon
-    #  get_url: url=https://cdn.chrisshort.net/favicon.ico dest=/var/www/ghost/core/shared/favicon.ico force=yes
+    - name: Replace favicon
+      get_url: url=https://cdn.chrisshort.net/favicon.ico dest=/var/www/ghost/core/shared/favicon.ico force=yes
 
     - name: Fix ownership on ghost_path
       file: path={{ ghost_path }} owner=ghost group=ghost recurse=yes
 
     - name: npm install Ghost
       shell: "cd {{ ghost_path }} && npm install --production"
+      register: ghost_install
+      failed_when: ghost_install.rc != 0
+      changed_when: false
 
-    - name: Restart supervisord
-      service: name=supervisord state=restarted
+    - name: Restart PM2
+      service: name=pm2 state=restarted
 
     - name: Destroy temp Directory
       file: path={{ ghost_latest }} state=absent
