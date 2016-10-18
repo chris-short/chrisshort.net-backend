@@ -1,0 +1,41 @@
+---
+- name: Purge Nginx Cache
+  hosts: all:!localhost
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: pm2 restart
+      service: name=pm2 state=restarted
+    - name: nginx stop
+      service: name=nginx state=stopped
+    - name: remove nginx cache directory
+      file: path=/var/cache/nginx state=absent
+    - name: recreate nginx cache directory
+      file: path=/var/cache/nginx state=directory owner=nginx group=root
+    - name: nginx start
+      service: name=nginx state=started
+
+- name: Purge CloudFlare Cache
+  hosts: localhost
+  become: no
+  gather_facts: no
+  tasks:
+    - shell: curl -X DELETE "https://api.cloudflare.com/client/v4/zones/***REMOVED***/purge_cache" -H "Content-Type:application/json" -H "X-Auth-Key:{{ cf_api_key }}" -H "X-Auth-Email:{{ cf_email }}" --data '{"purge_everything":true}'
+  tags: cloudflare
+
+#- name: Purge CloudFlare Cache
+#  hosts: localhost
+#  become: no
+#  gather_facts: no
+#  tasks:
+#    - name: Ansible URI Module to Purge CloudFlare Cache
+#      uri:
+#        method=DELETE
+#        HEADER_Content-Type="application/json"
+#        HEADER_X-Auth-Key="{{ cf_api_key }}"
+#        HEADER_X-Auth-Email="{{ cf_email }}"
+#        body='{"files":["{{ item }}"]}'
+#      with_items:
+#        - https://chrisshort.net/
+#        - https://chrisshort.net/rss/
+#      tags: uri
