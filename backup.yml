@@ -7,7 +7,4 @@
         mode=pull
         src={{ ghost_path }}
         dest={{ item }}
-#        recursive=yes
-#        checksum=yes
-#        compress=yes
       with_items: "{{ backup_paths }}"
