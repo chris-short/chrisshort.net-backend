@@ -1,0 +1,3 @@
+---
+nginx_cf_pem: "{{ lookup('file', 'chrisshort.net.pem') }}"
+nginx_cf_key: "{{ lookup('file', 'chrisshort.net.key') }}"

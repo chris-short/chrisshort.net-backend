@@ -1,5 +1,5 @@
 ---
-- name: "Setup nginx and Let's Encrypt" 
+- name: Setup nginx and CloudFlare SSL 
   become: yes
   hosts: all:!localhost
   roles:

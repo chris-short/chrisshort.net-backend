@@ -12,43 +12,36 @@
 
 - name: Deploy mainline nginx repo configuration
   template: src=nginx.repo.j2 dest=/etc/yum.repos.d/nginx.repo
+  notify: restart nginx
 
-- name: "Install Nginx and Let's Encrypt Dependencies"
+- name: Install Nginx and openssl
   yum: name={{ item }} state=latest
   with_items:
-    - bc
-    - git
     - nginx
     - openssl
-#    - certbot
+  notify: restart nginx
 
 - name: Deploy dhparam.pem
   shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
   args:
     chdir: /etc/ssl/certs
     creates: /etc/ssl/certs/dhparam.pem
-    
-- name: Delete /etc/nginx/conf.d
-  file: path=/etc/nginx/conf.d/{{ item }} state=absent
+  notify: restart nginx
+
+- name: Deploy Certs
+  copy: content={{ item.content }} dest=/etc/pki/tls/certs/{{ item.dest }} owner=root group=root mode=0640
   with_items:
-    - chrisshort.net.conf
-    - well-known.conf
-
-#- name: Create .well-known directory
-#  file: path=/var/www/.well-known state=directory owner=root group=root recurse=yes
-
+    - { content: "{{ nginx_cf_pem }}", dest: 'chrisshort.net.pem' }
+    - { content: "{{ nginx_cf_key }}", dest: 'chrisshort.net.key' }
+  notify: restart nginx
+  tags:
+    - certs
+    
 - name: Create /etc/nginx/ directories
   file: path=/etc/nginx/{{ item }} state=directory
   with_items:
     - conf.d
     - includes
-
-#- name: Deploy well-known.conf
-#  template: src=well-known.conf.j2 dest=/etc/nginx/conf.d/well-known.conf
-#  notify: restart nginx
-#  tags:
-#    - nginx_configs
-#    - well_known
 
 - name: Deploy nginx.conf
   template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
@@ -67,20 +60,25 @@
 #  service: name=nginx state=restarted enabled=yes
 
 - name: Get CloudFlare CA
-  get_url: url=https://support.cloudflare.com/hc/en-us/article_attachments/201243967/origin-pull-ca.pem dest=/etc/ssl/certs/origin-pull-ca.pem
+  get_url:
+    url=https://support.cloudflare.com/hc/en-us/article_attachments/201243967/origin-pull-ca.pem
+    dest=/etc/ssl/certs/origin-pull-ca.pem
 
-# https://www.cloudflare.com/docs/client-api.html (rec_load_all to find all records, rec_edit to change them)
+# https://api.cloudflare.com
+# https://www.evernote.com/shard/s5/nl/152646967/fb4f795c-05ef-4d87-9822-38499a5dd9bc/
 - name: Update chrisshort.net A record at CloudFlare
-  cloudflare_dns:
-    zone: "{{ cf_zone }}"
-    record: "{{ item }}"
-    type: A
-    value: "{{ inventory_hostname }}"
-    account_email: "{{ cf_email }}"
-    account_api_token: "{{ cf_api_key }}"
-  with_items: "{{ cf_records }}"
-  tags: cloudflare
-#  shell: curl -sS https://www.cloudflare.com/api_json.html -d 'a=rec_edit' -d 'tkn={{ cf_api_key }}' -d 'email={{ cf_email }}' -d 'z={{ cf_zone }}' -d 'type=A' -d 'name=chrisshort.net' -d 'id=451249159' -d 'content={{ inventory_hostname }}' -d 'service_mode=0' -d 'ttl=1'
+  shell: curl -X PUT "https://api.cloudflare.com/client/v4/zones/***REMOVED***/dns_records/7931ea7903eaa365924f9c6d76001aaf" \
+     -H "Content-Type:application/json" \
+     -H "X-Auth-Key:{{ cf_api_key }}" \
+     -H "X-Auth-Email:chris@chrisshort.net" \
+     --data '{"id":"7931ea7903eaa365924f9c6d76001aaf","type":"A","name":"chrisshort.net","content":"{{ inventory_hostname }}","proxiable":true,"proxied":true,"ttl":1,"locked":false,"zone_id":"***REMOVED***","zone_name":"chrisshort.net","meta":{"auto_added":false}}'
+
+- name: Update ssh.chrisshort.net A record at CloudFlare
+  shell: curl -X PUT "https://api.cloudflare.com/client/v4/zones/***REMOVED***/dns_records/7931ea7903eaa365924f9c6d76001aaf" \
+     -H "Content-Type:application/json" \
+     -H "X-Auth-Key:{{ cf_api_key }}" \
+     -H "X-Auth-Email:chris@chrisshort.net" \
+     --data '{"id":"85fa794dc6479f664c78e9072ef12881","type":"A","name":"ssh.chrisshort.net","content":"{{ inventory_hostname }}","proxiable":true,"proxied":false,"ttl":1,"locked":false,"zone_id":"***REMOVED***","zone_name":"chrisshort.net","meta":{"auto_added":false}}'
 
 #- name: "Clone Let's Encrypt git repo"
 #  git:
@@ -103,8 +101,6 @@
 #- name: Make le-renew-webroot executable
 #  file: path=/usr/local/sbin/le-renew-webroot mode=0700
 
-- pause: prompt="5 Second Pause to Wait for DNS Changes" seconds=5
-
 #- name: Run Certbot
 #  shell: certbot >> /var/log/le-renewal.log
 #  args:
@@ -115,7 +111,7 @@
   template: src={{ item.src }} dest=/etc/nginx/{{ item.dest }}
   with_items:
     - { src: 'chrisshort.net.conf.j2', dest: 'conf.d/chrisshort.net.conf' }
-#    - { src: 'well-known-post-le.conf.j2', dest: 'conf.d/well-known.conf' }
+    - { src: 'well-known-post-le.conf.j2', dest: 'conf.d/well-known.conf' }
   notify: restart nginx
   tags:
     - nginx_configs
