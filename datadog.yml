@@ -1,0 +1,21 @@
+- hosts: all:!localhost
+  roles:
+    - Datadog.datadog 
+  vars:
+    datadog_api_key: "{{ dd_api_key }}"
+    datadog_checks:
+      process:
+        init_config:
+        instances:
+          - name: ssh
+            search_string: ['ssh', 'sshd' ]
+#      ssh_check:
+#        init_config:
+#        instances:
+#          - host: localhost
+#            username: centos
+#            add_missing_keys: True
+      nginx:
+        init_config:
+        instances:
+          - nginx_status_url: http://127.0.0.1/nginx_stub_status
