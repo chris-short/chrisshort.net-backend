@@ -122,5 +122,5 @@ server {
     rewrite ^/content/images/(.*)$ https://cdn.chrisshort.net/$1 permanent;
     rewrite ^/favicon.ico https://cdn.chrisshort.net/favicon.ico permanent;
     # resume to resume-cv
-    rewrite ^/resume/ ^/resume-cv/ permanent;
+    rewrite ^/resume/$ https://chrisshort.net/resume-cv/ permanent;
 }
