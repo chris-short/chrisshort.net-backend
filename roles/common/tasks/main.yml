@@ -26,6 +26,7 @@
     - python-virtualenv
     - net-tools
     - rsync
+    - rsyslog-gnutls
     - strace
     - sysstat
     - unzip
@@ -37,3 +38,14 @@
 
 - name: pip install httplib2
   pip: name=httplib2 state=latest
+
+- name: Obtain Papertrail Cert
+  get_url: dest=/etc/pki/tls/certs/papertrail-bundle.pem url=https://papertrailapp.com/tools/papertrail-bundle.pem force=yes
+  notify: restart rsyslog
+  tags: papertrail
+  
+
+- name: Deploy rsyslog conf for Papertrail
+  template: src=papertrail.conf.j2 dest=/etc/rsyslog.d/papertrail.conf
+  notify: restart rsyslog
+  tags: papertrail

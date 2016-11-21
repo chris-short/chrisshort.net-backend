@@ -4,3 +4,6 @@
 
 - name: start newrelic-sysmond
   service: name=newrelic-sysmond state=restarted enabled=yes
+
+- name: restart rsyslog
+  service: name=rsyslog state=restarted

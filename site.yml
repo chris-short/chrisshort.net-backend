@@ -9,9 +9,9 @@
         aws_secret_key: "{{ ec2_secret_key }}"
         key_name: "{{ ec2_key }}"
         instance_type: "{{ ec2_instance }}"
-        image: "{{ ec2_ami }}"
-        region: "{{ aws_region }}"
-        vpc_subnet_id: "{{ ec2_subnet_e1a }}"
+        image: "{{ ec2_e2_ami }}"
+        region: "{{ ohio }}"
+        vpc_subnet_id: "{{ ec2_subnet_e2a }}"
         wait: true
         assign_public_ip: yes
         volumes:
@@ -44,7 +44,8 @@
     - ghost
     - nginx
     - newrelic
-#    - yum-cron
+
+- include: datadog.yml
 
 - hosts: all:!localhost
   become: True

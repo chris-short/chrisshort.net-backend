@@ -64,6 +64,7 @@
 
 - name: Launch Ghost with PM2
   shell: 'NODE_ENV=production pm2 start /var/www/ghost/index.js --name "ghost" -u ghost --hp /home/ghost'
+  ignore_errors: yes
   tags: pm2
 
 - name: PM2 Startup Script Generation
