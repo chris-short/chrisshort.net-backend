@@ -38,6 +38,7 @@
   gather_facts: True
   roles:
     - common
+    - papertrail
     - ntp
     - smtp
     - fail2ban

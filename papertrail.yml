@@ -1,7 +1,6 @@
 ---
-- name: Setup yum-cron
+- name: Setup Papertrail
   become: True
   hosts: all:!localhost
   roles:
-    - smtp
-    - yum-cron
+    - papertrail

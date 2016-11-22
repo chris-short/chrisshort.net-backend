@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+# https://www.nginx.com/blog/creating-nginx-rewrite-rules/
+
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name drawings.chrisshort.net drawing.chrisshort.net;
+    return 302 $scheme://chrisshort.net/tag/drawing/;
+}

@@ -112,6 +112,7 @@
   with_items:
     - { src: 'chrisshort.net.conf.j2', dest: 'conf.d/chrisshort.net.conf' }
     - { src: 'well-known-post-le.conf.j2', dest: 'conf.d/well-known.conf' }
+    - { src: 'drawings.chrisshort.net.conf.j2', dest: 'conf.d/drawings.chrisshort.net.conf' }
   notify: restart nginx
   tags:
     - nginx_configs
