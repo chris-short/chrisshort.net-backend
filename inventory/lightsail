@@ -1,1 +1,1 @@
-54.242.31.36	ansible_user=ec2-user	ansible_ssh_private_key_file=~/.ssh/LightsailDefaultPrivateKey.pem
+lightsail	ansible_host=54.158.83.150	ansible_user=ec2-user	ansible_ssh_private_key_file=~/.ssh/LightsailDefaultPrivateKey.pem

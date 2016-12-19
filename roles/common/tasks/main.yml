@@ -2,7 +2,7 @@
 - name: Disable sudo requiretty for Ansible pipelining
   lineinfile: dest=/etc/sudoers regexp="^Defaults(\s+)(.*)requiretty(.*)" line="#Defaults\1\2requiretty\3" backrefs=yes
 
-- name: Setup yum repos
+- name: Setup CentOS yum repos
   yum: name={{ item }} state=present
   with_items:
     - https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
@@ -11,6 +11,7 @@
 
 - name: Add EPEL Repo Key
   rpm_key: state=present key="/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
+  when: ansible_distribution == "CentOS"
   tags: key
 
 - name: Install common packages
@@ -31,9 +32,11 @@
     - unzip
     - vim
     - wget
+  when: ansible_distribution == "CentOS"
 
 - name: Disable SELinux
   selinux: state=disabled
+  when: ansible_distribution == "CentOS"
 
 - name: pip install httplib2
   pip: name=httplib2 state=latest
