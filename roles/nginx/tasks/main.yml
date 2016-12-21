@@ -71,14 +71,14 @@
      -H "Content-Type:application/json" \
      -H "X-Auth-Key:{{ cf_api_key }}" \
      -H "X-Auth-Email:chris@chrisshort.net" \
-     --data '{"id":"7931ea7903eaa365924f9c6d76001aaf","type":"A","name":"chrisshort.net","content":"{{ inventory_hostname }}","proxiable":true,"proxied":true,"ttl":1,"locked":false,"zone_id":"***REMOVED***","zone_name":"chrisshort.net","meta":{"auto_added":false}}'
+     --data '{"id":"0227d6cdd257f639a2ab488c03aea713","type":"A","name":"chrisshort.net","content":"{{ inventory_hostname }}","proxiable":true,"proxied":true,"ttl":1,"locked":false,"zone_id":"***REMOVED***","zone_name":"chrisshort.net","meta":{"auto_added":false}}'
 
 - name: Update ssh.chrisshort.net A record at CloudFlare
   shell: curl -X PUT "https://api.cloudflare.com/client/v4/zones/***REMOVED***/dns_records/7931ea7903eaa365924f9c6d76001aaf" \
      -H "Content-Type:application/json" \
      -H "X-Auth-Key:{{ cf_api_key }}" \
      -H "X-Auth-Email:chris@chrisshort.net" \
-     --data '{"id":"85fa794dc6479f664c78e9072ef12881","type":"A","name":"ssh.chrisshort.net","content":"{{ inventory_hostname }}","proxiable":true,"proxied":false,"ttl":1,"locked":false,"zone_id":"***REMOVED***","zone_name":"chrisshort.net","meta":{"auto_added":false}}'
+     --data '{"id":"85fa794dc6479f664c78e9072ef12881","type":"A","name":"ssh.chrisshort.net","content":"{{ inventory_hostname }}","proxiable":true,"proxied":false,"ttl":300,"locked":false,"zone_id":"***REMOVED***","zone_name":"chrisshort.net","meta":{"auto_added":false}}'
 
 #- name: "Clone Let's Encrypt git repo"
 #  git:

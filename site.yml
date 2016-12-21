@@ -12,6 +12,7 @@
         image: "{{ ec2_e2_ami }}"
         region: "{{ ohio }}"
         vpc_subnet_id: "{{ ec2_subnet_e2a }}"
+#        group: "{{ ec2_e2_sg }}"
         wait: true
         assign_public_ip: yes
         volumes:
@@ -38,7 +39,7 @@
   gather_facts: True
   roles:
     - common
-    - papertrail
+    - chris-short.ansible-role-papertrail
     - ntp
     - smtp
     - fail2ban
@@ -48,15 +49,15 @@
 
 - include: datadog.yml
 
-- hosts: all:!localhost
-  become: True
-  gather_facts: False
-  tasks:
-    - name: Update Everything
-      yum: name=* state=latest
+#- hosts: all:!localhost
+#  become: True
+#  gather_facts: False
+#  tasks:
+#    - name: Update Everything
+#      yum: name=* state=latest
 
-- hosts: all:!localhost
-  become: True
-  gather_facts: False
-  roles:
-    - yum-cron
+#- hosts: all:!localhost
+#  become: True
+#  gather_facts: False
+#  roles:
+#    - yum-cron

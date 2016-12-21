@@ -14,8 +14,16 @@
     - name: Create temp Directory
       file: path={{ ghost_latest }} state=directory
 
+    - name: Download Latest Ghost
+      get_url:
+        url=https://ghost.org/zip/ghost-latest.zip
+        dest=/tmp/ghost-latest.zip
+
     - name: Unarchive Lastest Ghost
-      unarchive: src=https://ghost.org/zip/ghost-latest.zip dest={{ ghost_latest }} copy=no
+      unarchive:
+        src=/tmp/ghost-latest.zip
+        dest={{ ghost_latest }}
+        copy=no
 
     - name: Remove Production Ghost Core
       file: path={{ ghost_path }}/core state=absent

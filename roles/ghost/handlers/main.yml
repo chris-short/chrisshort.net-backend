@@ -3,4 +3,4 @@
   service:
     name: pm2
     state: restarted
-  when: pm2_service_state != 'stopped'
+#  when: pm2_service_state != 'stopped'
