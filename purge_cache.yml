@@ -20,22 +20,5 @@
   become: no
   gather_facts: no
   tasks:
-    - shell: curl -X DELETE "https://api.cloudflare.com/client/v4/zones/***REMOVED***/purge_cache" -H "Content-Type:application/json" -H "X-Auth-Key:{{ cf_api_key }}" -H "X-Auth-Email:{{ cf_email }}" --data '{"purge_everything":true}'
+    - shell: curl -X DELETE "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/purge_cache" -H "Content-Type:application/json" -H "X-Auth-Key:{{ cf_api_key }}" -H "X-Auth-Email:{{ cf_email }}" --data '{"purge_everything":true}'
   tags: cloudflare
-
-#- name: Purge CloudFlare Cache
-#  hosts: localhost
-#  become: no
-#  gather_facts: no
-#  tasks:
-#    - name: Ansible URI Module to Purge CloudFlare Cache
-#      uri:
-#        method=DELETE
-#        HEADER_Content-Type="application/json"
-#        HEADER_X-Auth-Key="{{ cf_api_key }}"
-#        HEADER_X-Auth-Email="{{ cf_email }}"
-#        body='{"files":["{{ item }}"]}'
-#      with_items:
-#        - https://chrisshort.net/
-#        - https://chrisshort.net/rss/
-#      tags: uri
