@@ -19,8 +19,8 @@ config = {
               options: {
                   service: 'Mailgun',
                   auth: {
-                      user: '***REMOVED***', // mailgun username
-                      pass: '***REMOVED***'  // mailgun password
+                      user: '{{ mg_user }}', // mailgun username
+                      pass: '{{ mg_pass }}'  // mailgun password
                   }
               }
           },
@@ -55,8 +55,8 @@ config = {
               options: {
                   service: 'Mailgun',
                   auth: {
-                      user: '***REMOVED***', // mailgun username
-                      pass: '***REMOVED***'  // mailgun password
+                      user: '{{ mg_user }}', // mailgun username
+                      pass: '{{ mg_pass }}'  // mailgun password
                   }
               }
           },

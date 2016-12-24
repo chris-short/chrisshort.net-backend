@@ -34,6 +34,7 @@
     - { content: "{{ nginx_cf_pem }}", dest: 'chrisshort.net.pem' }
     - { content: "{{ nginx_cf_key }}", dest: 'chrisshort.net.key' }
   notify: restart nginx
+  no_log: True
   tags:
     - certs
     
@@ -67,45 +68,22 @@
 # https://api.cloudflare.com
 # https://www.evernote.com/shard/s5/nl/152646967/fb4f795c-05ef-4d87-9822-38499a5dd9bc/
 - name: Update chrisshort.net A record at CloudFlare
-  shell: curl -X PUT "https://api.cloudflare.com/client/v4/zones/***REMOVED***/dns_records/7931ea7903eaa365924f9c6d76001aaf" \
+  shell: curl -X PUT "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/dns_records/0227d6cdd257f639a2ab488c03aea713" \
      -H "Content-Type:application/json" \
      -H "X-Auth-Key:{{ cf_api_key }}" \
      -H "X-Auth-Email:chris@chrisshort.net" \
-     --data '{"id":"0227d6cdd257f639a2ab488c03aea713","type":"A","name":"chrisshort.net","content":"{{ inventory_hostname }}","proxiable":true,"proxied":true,"ttl":1,"locked":false,"zone_id":"***REMOVED***","zone_name":"chrisshort.net","meta":{"auto_added":false}}'
+     --data '{"type":"A","name":"chrisshort.net","content":"{{ inventory_hostname }}","proxiable":true,"proxied":true,"ttl":1,"locked":false,"zone_id":"{{ cf_zone_id }}","zone_name":"{{ cf_zone_name }}","meta":{"auto_added":false}}'
+  tags:
+    - a_record
 
 - name: Update ssh.chrisshort.net A record at CloudFlare
-  shell: curl -X PUT "https://api.cloudflare.com/client/v4/zones/***REMOVED***/dns_records/7931ea7903eaa365924f9c6d76001aaf" \
+  shell: curl -X PUT "https://api.cloudflare.com/client/v4/zones/{{ cf_zone_id }}/dns_records/7931ea7903eaa365924f9c6d76001aaf" \
      -H "Content-Type:application/json" \
      -H "X-Auth-Key:{{ cf_api_key }}" \
      -H "X-Auth-Email:chris@chrisshort.net" \
-     --data '{"id":"85fa794dc6479f664c78e9072ef12881","type":"A","name":"ssh.chrisshort.net","content":"{{ inventory_hostname }}","proxiable":true,"proxied":false,"ttl":300,"locked":false,"zone_id":"***REMOVED***","zone_name":"chrisshort.net","meta":{"auto_added":false}}'
-
-#- name: "Clone Let's Encrypt git repo"
-#  git:
-#    repo=https://github.com/letsencrypt/letsencrypt
-#    dest=/opt/letsencrypt
-#    version=master
-#    force=yes
-
-#- name: Deploy le-renew-webroot.ini
-#  template: src=le-renew-webroot.ini.j2 dest=/usr/local/etc/le-renew-webroot.ini
-#
-#- name: Deploy le-renewal.log logrotate
-#  template: src=le-renewal-logrotate.j2 dest=/etc/logrotate.d/le-renewal
-
-#- name: Get le-renew-webroot script
-#  get_url:
-#    url=https://gist.githubusercontent.com/thisismitch/e1b603165523df66d5cc/raw/fbffbf358e96110d5566f13677d9bd5f4f65794c/le-renew-webroot
-#    dest=/usr/local/sbin/le-renew-webroot
-    
-#- name: Make le-renew-webroot executable
-#  file: path=/usr/local/sbin/le-renew-webroot mode=0700
-
-#- name: Run Certbot
-#  shell: certbot >> /var/log/le-renewal.log
-#  args:
-#    chdir: /usr/local/sbin
-#    creates: /etc/letsencrypt/live/chrisshort.net/fullchain.pem
+     --data '{"type":"A","name":"ssh.chrisshort.net","content":"{{ inventory_hostname }}","proxiable":true,"proxied":false,"ttl":300,"locked":false,"zone_id":"{{ cf_zone_id }}","zone_name":"{{ cf_zone_name }}","meta":{"auto_added":false}}'
+  tags:
+    - a_record
 
 - name: Deploy chrisshort.net Nginx Configs
   template: src={{ item.src }} dest=/etc/nginx/{{ item.dest }}
@@ -117,12 +95,3 @@
   tags:
     - nginx_configs
     - chrisshort.net
-
-#- name: "Setup Let's Encrypt cronjob"
-#  cron: 
-#    name="Let's Encrypt Renewal"
-#    job="date >> /var/log/le-renewal.log && certbot renew >> /var/log/le-renewal.log"
-#    weekday=0
-#    hour=5
-#    minute=15
-#    state=present

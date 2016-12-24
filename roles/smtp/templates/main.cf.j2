@@ -28,7 +28,7 @@ readme_directory = /usr/share/doc/postfix-2.6.6/README_FILES
 mydestination = localhost.localdomain, localhost
 relayhost = [smtp.mailgun.org]:587
 smtp_sasl_auth_enable = yes
-smtp_sasl_password_maps = static:***REMOVED***:***REMOVED***
+smtp_sasl_password_maps = static:{{ mg_user }}:{{ mg_pass }}
 smtp_sasl_security_options = noanonymous
 
 # TLS support
