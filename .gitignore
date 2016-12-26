@@ -1,0 +1,8 @@
+.DS_Store
+inventory/aws_keys
+inventory/ec2_chrisshort.pem
+syntax: glob
+*.swp
+json_cache/*
+log/*
+ssh_control_path/*
