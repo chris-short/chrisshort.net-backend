@@ -4,4 +4,5 @@ inventory/ec2_chrisshort.pem
 *.swp
 json_cache/*
 log/*
-ssh_control_path/*
+#ssh_control_path/*
+*ansible-ssh-*
