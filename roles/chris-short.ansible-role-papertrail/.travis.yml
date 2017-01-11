@@ -24,7 +24,7 @@ before_install:
 
 script:
   # Start the container from the image and perform tests.
-  
+
   # Create a random file to store the container ID.
   - container_id=$(mktemp)
 
@@ -34,19 +34,19 @@ script:
   # Check the role/playbook's syntax.
   - >
     docker exec --tty "$(cat ${container_id})" env TERM=xterm
-    ansible-playbook /etc/ansible/roles/ansible-role-papertrail/tests/test.yml
+    ansible-playbook -vvv /etc/ansible/roles/ansible-role-papertrail/tests/test.yml
     --syntax-check
 
   # Run the role/playbook with ansible-playbook.
   - >
     docker exec --tty "$(cat ${container_id})" env TERM=xterm
-    ansible-playbook /etc/ansible/roles/ansible-role-papertrail/tests/test.yml
+    ansible-playbook -vvv /etc/ansible/roles/ansible-role-papertrail/tests/test.yml
 
   # Run the role/playbook again, checking to make sure it's idempotent.
   - idempotence=$(mktemp)
   - >
     docker exec "$(cat ${container_id})"
-    ansible-playbook /etc/ansible/roles/ansible-role-papertrail/tests/test.yml
+    ansible-playbook -vvv /etc/ansible/roles/ansible-role-papertrail/tests/test.yml
     | tee -a ${idempotence}
   - >
     tail ${idempotence}
@@ -66,5 +66,7 @@ script:
   # Ensure remote_syslog.service is running.
   - 'docker exec --tty "$(cat ${container_id})" env TERM=xterm systemctl -l is-enabled remote_syslog'
 
-notifications:
-  webhooks: https://galaxy.ansible.com/api/v1/notifications/
+  # Rough test of /etc/log_files.yml content
+  - 'docker exec --tty "$(cat ${container_id})" env TERM=xterm grep "  host: fake_host"       /etc/log_files.yml'
+  - 'docker exec --tty "$(cat ${container_id})" env TERM=xterm grep "  port: 11111"           /etc/log_files.yml'
+  - 'docker exec --tty "$(cat ${container_id})" env TERM=xterm grep "  - /var/log/cron"       /etc/log_files.yml'
