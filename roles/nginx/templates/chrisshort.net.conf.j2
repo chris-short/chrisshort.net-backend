@@ -126,4 +126,6 @@ server {
     rewrite ^/http-2-primer-and-drawing/ https://chrisshort.net/http2-primer/ permanent;
     # opensource.com mistakes
     rewrite ^/p/5dbc46a9-5091-4251-967d-43517f38a467/ / permanent;
+    # Wordpress Crawlers
+    rewrite ^/wp-login.php / permanent;
 }
