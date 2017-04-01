@@ -1,13 +1,7 @@
 ---
-# nodejs comes from EPEL
+# nodejs comes from Node
 # http://support.ghost.org/supported-node-versions/
 # https://github.com/nodejs/LTS
-# 
-- name: New Relic Deployment
-  newrelic_deployment:
-    token={{ nr_api_key }}
-    app_name=ghost
-    user='ansible ghost deployment'
 
 - name: Add Node Yum Repo
   yum_repository:

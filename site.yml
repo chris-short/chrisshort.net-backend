@@ -45,9 +45,6 @@
     - fail2ban
     - ghost
     - nginx
-    - newrelic
-
-- include: datadog.yml
 
 #- hosts: all:!localhost
 #  become: True

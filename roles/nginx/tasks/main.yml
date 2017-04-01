@@ -2,14 +2,6 @@
 - name: Disable SELinux
   selinux: state=disabled
 
-- name: New Relic Deployment
-  newrelic_deployment:
-    token={{ nr_api_key }}
-    app_name=ghost
-    user='ansible nginx deployment'
-  tags:
-    - nginx_configs
-
 - name: Deploy mainline nginx repo configuration
   template: src=nginx.repo.j2 dest=/etc/yum.repos.d/nginx.repo
   notify: restart nginx

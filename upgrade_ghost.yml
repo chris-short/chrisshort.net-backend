@@ -2,15 +2,11 @@
 - name: Upgrade Ghost
   become: yes
   hosts: all:!localhost
+
   vars:
     - ghost_latest: /tmp/ghost-latest
-  tasks:
-    - name: New Relic Deployment
-      newrelic_deployment:
-        token={{ nr_api_key }}
-        app_name=ghost
-        user='ansible ghost upgrade'
 
+  tasks:
     - name: Create temp Directory
       file: path={{ ghost_latest }} state=directory
 
