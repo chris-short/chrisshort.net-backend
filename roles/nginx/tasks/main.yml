@@ -21,15 +21,15 @@
     creates: /etc/ssl/certs/dhparam.pem
   notify: restart nginx
 
-- name: Deploy Certs
-  copy: content={{ item.content }} dest=/etc/pki/tls/certs/{{ item.dest }} owner=root group=root mode=0640
-  with_items:
-    - { content: "{{ nginx_cf_pem }}", dest: 'chrisshort.net.pem' }
-    - { content: "{{ nginx_cf_key }}", dest: 'chrisshort.net.key' }
-  notify: restart nginx
-  no_log: True
-  tags:
-    - certs
+#- name: Deploy Certs
+#  copy: content={{ item.content }} dest=/etc/pki/tls/certs/{{ item.dest }} owner=root group=root mode=0640
+#  with_items:
+#    - { content: "{{ nginx_cf_pem }}", dest: 'chrisshort.net.pem' }
+#    - { content: "{{ nginx_cf_key }}", dest: 'chrisshort.net.key' }
+#  notify: restart nginx
+#  no_log: True
+#  tags:
+#    - certs
     
 - name: Create /etc/nginx/ directories
   file: path=/etc/nginx/{{ item }} state=directory
@@ -53,10 +53,10 @@
 #- name: Enable and start nginx
 #  service: name=nginx state=restarted enabled=yes
 
-- name: Get CloudFlare CA
-  get_url:
-    url=https://support.cloudflare.com/hc/en-us/article_attachments/201243967/origin-pull-ca.pem
-    dest=/etc/ssl/certs/origin-pull-ca.pem
+#- name: Get CloudFlare CA
+#  get_url:
+#    url=https://support.cloudflare.com/hc/en-us/article_attachments/201243967/origin-pull-ca.pem
+#    dest=/etc/ssl/certs/origin-pull-ca.pem
 
 # https://api.cloudflare.com
 # https://www.evernote.com/shard/s5/nl/152646967/fb4f795c-05ef-4d87-9822-38499a5dd9bc/
@@ -80,8 +80,8 @@
 
 - name: Clone certbot Repo
   git:
-	dest: "{{ le_path }}"
-	repo: "{{ le_repo }}"
+    dest: "{{ le_path }}"
+    repo: "{{ le_repo }}"
 
 - name: Generate LE Keys
   shell: "{{ le_path }}/certbot-auto -n certonly -a webroot --webroot-path={{ le_web_root }} -d {{ le_domain }} -d {{ le_www_domain }} --agree-tos -m {{ le_email }} --rsa-key-size 4096"
@@ -90,7 +90,7 @@
   template: src={{ item.src }} dest=/etc/nginx/{{ item.dest }}
   with_items:
     - { src: 'chrisshort.net.conf.j2', dest: 'conf.d/chrisshort.net.conf' }
-    - { src: 'well-known-post-le.conf.j2', dest: 'conf.d/well-known.conf' }
+    - { src: 'well-known.conf.j2', dest: 'conf.d/well-known.conf' }
     - { src: 'drawings.chrisshort.net.conf.j2', dest: 'conf.d/drawings.chrisshort.net.conf' }
   notify: restart nginx
   tags:
