@@ -78,14 +78,6 @@
   tags:
     - a_record
 
-- name: Clone certbot Repo
-  git:
-    dest: "{{ le_path }}"
-    repo: "{{ le_repo }}"
-
-- name: Generate LE Keys
-  shell: "{{ le_path }}/certbot-auto -n certonly -a webroot --webroot-path={{ le_web_root }} -d {{ le_domain }} -d {{ le_www_domain }} --agree-tos -m {{ le_email }} --rsa-key-size 4096"
-
 - name: Deploy chrisshort.net Nginx Configs
   template: src={{ item.src }} dest=/etc/nginx/{{ item.dest }}
   with_items:
@@ -96,3 +88,20 @@
   tags:
     - nginx_configs
     - chrisshort.net
+
+- name: Clone certbot Repo
+  git:
+    dest: "{{ le_path }}"
+    repo: "{{ le_repo }}"
+
+- name: Generate LE Keys
+  shell: "{{ le_path }}/certbot-auto -n certonly -a webroot --webroot-path={{ le_web_root }} -d {{ le_domain }} -d {{ le_www_domain }} --agree-tos -m {{ le_email }} --rsa-key-size 4096"
+
+- name: LE Renewal Cronjob
+  cron:
+    name: "Let's Encrypt Auto-Renewal"
+    minute: "15"
+    hour: "*/12"
+    job: '{{ le_path }}/certbot-auto -q renew --post-hook "service nginx restart"'
+  tags:
+    - cron
