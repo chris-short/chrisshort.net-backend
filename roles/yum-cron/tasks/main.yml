@@ -8,4 +8,4 @@
   notify: restart yumcron
 
 - name: Enable yum-cron service
-  service: name=yum-cron state=running enabled=yes
+  service: name=yum-cron state=started enabled=yes

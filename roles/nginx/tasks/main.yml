@@ -15,22 +15,22 @@
   notify: restart nginx
 
 - name: Deploy dhparam.pem
-  shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+  shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
   args:
     chdir: /etc/ssl/certs
     creates: /etc/ssl/certs/dhparam.pem
   notify: restart nginx
 
-#- name: Deploy Certs
-#  copy: content={{ item.content }} dest=/etc/pki/tls/certs/{{ item.dest }} owner=root group=root mode=0640
-#  with_items:
-#    - { content: "{{ nginx_cf_pem }}", dest: 'chrisshort.net.pem' }
-#    - { content: "{{ nginx_cf_key }}", dest: 'chrisshort.net.key' }
-#  notify: restart nginx
-#  no_log: True
-#  tags:
-#    - certs
-    
+- name: Deploy Certs
+  copy: content={{ item.content }} dest=/etc/pki/tls/certs/{{ item.dest }} owner=root group=root mode=0640
+  with_items:
+    - { content: "{{ nginx_cf_pem }}", dest: 'chrisshort.net.pem' }
+    - { content: "{{ nginx_cf_key }}", dest: 'chrisshort.net.key' }
+  notify: restart nginx
+  no_log: True
+  tags:
+    - certs
+
 - name: Create /etc/nginx/ directories
   file: path=/etc/nginx/{{ item }} state=directory
   with_items:
@@ -50,13 +50,10 @@
     - https
   changed_when: False
 
-#- name: Enable and start nginx
-#  service: name=nginx state=restarted enabled=yes
-
-#- name: Get CloudFlare CA
-#  get_url:
-#    url=https://support.cloudflare.com/hc/en-us/article_attachments/201243967/origin-pull-ca.pem
-#    dest=/etc/ssl/certs/origin-pull-ca.pem
+- name: Get CloudFlare CA
+  get_url:
+    url=https://support.cloudflare.com/hc/en-us/article_attachments/201243967/origin-pull-ca.pem
+    dest=/etc/ssl/certs/origin-pull-ca.pem
 
 # https://api.cloudflare.com
 # https://www.evernote.com/shard/s5/nl/152646967/fb4f795c-05ef-4d87-9822-38499a5dd9bc/
@@ -89,19 +86,23 @@
     - nginx_configs
     - chrisshort.net
 
-- name: Clone certbot Repo
-  git:
-    dest: "{{ le_path }}"
-    repo: "{{ le_repo }}"
+#- name: Clone certbot Repo
+#  git:
+#    dest: "{{ le_path }}"
+#    repo: "{{ le_repo }}"
+#  tags:
+#    - le_keys
 
-- name: Generate LE Keys
-  shell: "{{ le_path }}/certbot-auto -n certonly -a webroot --webroot-path={{ le_web_root }} -d {{ le_domain }} -d {{ le_www_domain }} --agree-tos -m {{ le_email }} --rsa-key-size 4096"
+#- name: Generate LE Keys
+#  shell: "{{ le_path }}/certbot-auto -n certonly -a webroot --webroot-path={{ le_web_root }} -d {{ le_domain }} -d {{ le_www_domain }} --agree-tos -m {{ le_email }} --rsa-key-size 4096 --dry-run"
+#  tags:
+#    - le_keys
 
-- name: LE Renewal Cronjob
-  cron:
-    name: "Let's Encrypt Auto-Renewal"
-    minute: "15"
-    hour: "*/12"
-    job: '{{ le_path }}/certbot-auto -q renew --post-hook "service nginx restart"'
-  tags:
-    - cron
+#- name: LE Renewal Cronjob
+#  cron:
+#    name: "Let's Encrypt Auto-Renewal"
+#    minute: "15"
+#    hour: "*/12"
+#    job: '{{ le_path }}/certbot-auto -q renew --post-hook "service nginx restart"'
+#  tags:
+#    - cron

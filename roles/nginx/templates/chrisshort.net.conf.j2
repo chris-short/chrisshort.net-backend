@@ -28,12 +28,12 @@ server {
    ssl_protocols {{ nginx_ssl_protocols }};
    ssl_ciphers '{{ nginx_ssl_ciphers }}';
    ssl_prefer_server_ciphers on;
-   ssl_certificate /etc/letsencrypt/live/{{ le_domain }}/fullchain.pem;
-   ssl_certificate_key /etc/letsencrypt/live/{{ le_domain }}/privkey.pem;
-   ssl_trusted_certificate /etc/letsencrypt/live/{{ le_domain }}/chain.pem;
-#   ssl_certificate /etc/pki/tls/certs/chrisshort.net.pem;
-#   ssl_certificate_key /etc/pki/tls/certs/chrisshort.net.key;
-#   ssl_trusted_certificate /etc/pki/tls/certs/chrisshort.net.pem;
+#   ssl_certificate /etc/letsencrypt/live/{{ le_domain }}/fullchain.pem;
+#   ssl_certificate_key /etc/letsencrypt/live/{{ le_domain }}/privkey.pem;
+#   ssl_trusted_certificate /etc/letsencrypt/live/{{ le_domain }}/chain.pem;
+   ssl_certificate /etc/pki/tls/certs/chrisshort.net.pem;
+   ssl_certificate_key /etc/pki/tls/certs/chrisshort.net.key;
+   ssl_trusted_certificate /etc/pki/tls/certs/chrisshort.net.pem;
    ssl_dhparam /etc/ssl/certs/dhparam.pem;
    ssl_session_cache shared:SSL:50m; 
    ssl_session_tickets off;

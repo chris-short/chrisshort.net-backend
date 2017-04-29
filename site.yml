@@ -46,15 +46,22 @@
     - ghost
     - nginx
 
-#- hosts: all:!localhost
-#  become: True
-#  gather_facts: False
-#  tasks:
-#    - name: Update Everything
-#      yum: name=* state=latest
+- hosts: all:!localhost
+  become: True
+  gather_facts: False
+  tasks:
+    - name: Update Everything
+      yum:
+        name: '*'
+        state: latest
+        disablerepo: epel
+      tags:
+        - yum
 
-#- hosts: all:!localhost
-#  become: True
-#  gather_facts: False
-#  roles:
-#    - yum-cron
+- hosts: all:!localhost
+  become: True
+  gather_facts: False
+  roles:
+    - yum-cron
+  tags:
+    - yum
