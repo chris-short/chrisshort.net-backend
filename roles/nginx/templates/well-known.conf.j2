@@ -1,14 +1,33 @@
 # {{ ansible_managed }}
 # https://gist.github.com/renchap/c093702f06df69ba5cac#file-readme-md
 # https://www.digitalocean.com/community/tutorials/how-to-redirect-www-to-non-www-with-nginx-on-centos-7
-server {
-    listen              80 default_server;
-    listen              [::]:80 default_server;
-    server_name         chrisshort.net www.chrisshort.net;
+# https://artisavotins.com/a-secure-blog-with-ghost-nginx-and-letsencrypt-certbot-2/#guide
 
-    location '/.well-known' {
-    default_type "text/plain";
-        root        /var/www;
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    root /var/www;
+
+    location '/nginx_stub_status' {
+        stub_status on;
+        allow 127.0.0.1;
+        deny all;
+    }
+
+}
+
+server {
+    listen 0.0.0.0:80;
+    listen [::]:80;
+    server_name chrisshort.net www.chrisshort.net;
+
+    root /var/www;
+
+    location ~ /.well-known {
+        allow all;
+        break;
     }
 
     location '/nginx_stub_status' {
@@ -17,4 +36,7 @@ server {
         deny all;
     }
 
+    location / {
+        return 301 https://$host$request_uri;
+    }
 }

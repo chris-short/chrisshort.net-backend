@@ -6,15 +6,16 @@
   template: src=nginx.repo.j2 dest=/etc/yum.repos.d/nginx.repo
   notify: restart nginx
 
-- name: Install Nginx and openssl
+- name: Install Packages
   yum: name={{ item }} state=latest
   with_items:
     - nginx
     - openssl
+    - git
   notify: restart nginx
 
 - name: Deploy dhparam.pem
-  shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+  shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
   args:
     chdir: /etc/ssl/certs
     creates: /etc/ssl/certs/dhparam.pem
@@ -76,6 +77,14 @@
      --data '{"type":"A","name":"ssh.chrisshort.net","content":"{{ inventory_hostname }}","proxiable":true,"proxied":false,"ttl":300,"locked":false,"zone_id":"{{ cf_zone_id }}","zone_name":"{{ cf_zone_name }}","meta":{"auto_added":false}}'
   tags:
     - a_record
+
+- name: Clone certbot Repo
+  git:
+	dest: "{{ le_path }}"
+	repo: "{{ le_repo }}"
+
+- name: Generate LE Keys
+  shell: "{{ le_path }}/certbot-auto -n certonly -a webroot --webroot-path={{ le_web_root }} -d {{ le_domain }} -d {{ le_www_domain }} --agree-tos -m {{ le_email }} --rsa-key-size 4096"
 
 - name: Deploy chrisshort.net Nginx Configs
   template: src={{ item.src }} dest=/etc/nginx/{{ item.dest }}

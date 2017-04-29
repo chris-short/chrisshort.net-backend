@@ -5,7 +5,7 @@
   gather_facts: no
   tasks:
     - name: pm2 restart
-      service: name=pm2 state=restarted
+      service: name=pm2-root state=restarted
     - name: nginx stop
       service: name=nginx state=stopped
     - name: remove nginx cache directory
