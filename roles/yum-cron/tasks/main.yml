@@ -1,4 +1,7 @@
 ---
+- name: Disable epel Repo
+  shell: sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/epel.repo
+
 - name: Install yum-cron
   yum: name=yum-cron state=latest
 
