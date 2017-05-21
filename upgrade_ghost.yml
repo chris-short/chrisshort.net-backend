@@ -33,13 +33,6 @@
         - npm-shrinkwrap.json
         - package.json
 
-    - name: Require New Relic in Ghost Startup Script
-      lineinfile:
-        dest={{ ghost_path }}/index.js
-        insertbefore=BOF
-        line="require('newrelic');"
-        state=present
-
     - name: Replace favicon
       get_url: url=https://cdn.chrisshort.net/favicon.ico dest=/var/www/ghost/core/shared/favicon.ico force=yes
 
@@ -53,7 +46,8 @@
       changed_when: false
 
     - name: Restart PM2
-      service: name=pm2 state=restarted
+      shell: pm2 restart ghost
+      tags: restart_ghost
 
     - name: Destroy temp Directory
       file: path={{ ghost_latest }} state=absent

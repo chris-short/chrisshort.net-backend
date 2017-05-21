@@ -1,6 +1,3 @@
 ---
 - name: restart pm2
-  service:
-    name: pm2-root
-    state: restarted
-#  when: pm2_service_state != 'stopped'
+  shell: pm2 restart ghost
